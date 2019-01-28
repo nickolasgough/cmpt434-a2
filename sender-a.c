@@ -57,10 +57,6 @@ int main(int argc, char* argv[]) {
         printf("sender-a: failed to create udp socket for given receiver\n");
         exit(1);
     }
-    if (connect(recvFd, recvInfo->ai_addr, recvInfo->ai_addrlen) == -1) {
-        printf("sender-a: failed to connect udp socket for given receiver\n");
-        exit(1);
-    }
 
     /* Setup the interactions */
     buffer = calloc(MAX_SIZE, sizeof(char*));
