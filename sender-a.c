@@ -41,10 +41,10 @@ int main(int argc, char* argv[]) {
     rPort = argv[2];
     wSize = atoi(argv[3]);
     timeout = atoi(argv[4]);
-    // if (!check_port(rPort)) {
-    //     printf("sender-a: port number must be between 30000 and 40000\n");
-    //     exit(1);
-    // }
+    if (!check_port(rPort)) {
+        printf("sender-a: port number must be between 30000 and 40000\n");
+        exit(1);
+    }
     if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
         printf("sender-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
         printf("sender-a: timeout must be greater than zero\n");
         exit(1);   
     }
+    printf("%s\n", rName);
+    printf("%s\n", rPort);
     if (!udp_socket(&recvFd, &recvInfo, rName, rPort)) {
         printf("sender-a: failed to create udp socket for given receiver\n");
         exit(1);

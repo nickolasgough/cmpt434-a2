@@ -34,10 +34,10 @@ int main(int argc, char* argv[]) {
     /* Arguments and connect */
     rPort = argv[1];
     wSize = atoi(argv[2]);
-    // if (!check_port(rPort)) {
-    //     printf("receiver-a: port number must be between 30000 and 40000\n");
-    //     exit(1);
-    // }
+    if (!check_port(rPort)) {
+        printf("receiver-a: port number must be between 30000 and 40000\n");
+        exit(1);
+    }
     if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
         printf("receiver-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
