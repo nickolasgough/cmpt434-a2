@@ -64,7 +64,8 @@ int main(int argc, char* argv[]) {
     recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
     printf("%s\n", message);
 
-    if (sendto(recvFd, "hello", MAX_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
+    sprintf(message, "%s", "hello");
+    if (sendto(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
         printf("Failed to send message\n");
         printf("%d\n", errno);
         printf("%s\n", strerror(errno));

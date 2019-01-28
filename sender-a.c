@@ -74,7 +74,8 @@ int main(int argc, char* argv[]) {
 
     recvAddr = (struct sockaddr*) recvInfo->ai_addr;
     recvLen = recvInfo->ai_addrlen;
-    if (sendto(recvFd, "hello", MAX_SIZE, 0, recvAddr, recvLen) == -1) {
+    sprintf(message, "%s", "hello");
+    if (sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen) == -1) {
         printf("Failed to send message\n");
         printf("%d\n", errno);
         printf("%s\n", strerror(errno));
