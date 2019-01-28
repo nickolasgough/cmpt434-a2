@@ -44,7 +44,7 @@ int udp_socket(int* outFd, struct addrinfo** outInfo, char* mName, char* port) {
     struct addrinfo hints;
     int sockFd;
     
-    if (mName == NULL || port == NULL) {
+    if (port == NULL) {
         return 0;
     }
     

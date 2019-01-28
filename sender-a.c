@@ -69,8 +69,8 @@ int main(int argc, char* argv[]) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
     }
-    inFlags = unblock_fd(STD_IN);
-    rFlags = unblock_fd(recvFd);
+    // inFlags = unblock_fd(STD_IN);
+    // rFlags = unblock_fd(recvFd);
 
     recvAddr = (struct sockaddr*) recvInfo->ai_addr;
     recvLen = recvInfo->ai_addrlen;
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     //     }
     // }
 
-    block_fd(STD_IN, inFlags);
+    // block_fd(STD_IN, inFlags);
 
     close(recvFd);
     exit(0);
