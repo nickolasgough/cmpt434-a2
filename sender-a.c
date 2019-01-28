@@ -53,8 +53,6 @@ int main(int argc, char* argv[]) {
         printf("sender-a: timeout must be greater than zero\n");
         exit(1);   
     }
-    printf("%s\n", rName);
-    printf("%s\n", rPort);
     recvFd = udp_socket(&recvInfo, rName, rPort);
     if (recvFd <= 0) {
         printf("sender-a: failed to create udp socket for given receiver\n");
