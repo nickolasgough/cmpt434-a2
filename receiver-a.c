@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+#include <errno.h>
 
 #include "common.h"
 
@@ -62,7 +63,12 @@ int main(int argc, char* argv[]) {
     recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
     printf("%s\n", message);
 
-    sendto(recvFd, "hello", MAX_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen);
+    if (sendto(recvFd, "hello", MAX_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
+        printf("Failed to send message\n");
+        printf("%d\n", errno);
+        printf("%s\n", strerror(errno));
+        exit(1);
+    }
     exit(0);
 
     /* Interact with the user */
