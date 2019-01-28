@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+#include <errno.h>
 
 #include "common.h"
 
@@ -40,10 +41,10 @@ int main(int argc, char* argv[]) {
     rPort = argv[2];
     wSize = atoi(argv[3]);
     timeout = atoi(argv[4]);
-    if (!check_port(rPort)) {
-        printf("sender-a: port number must be between 30000 and 40000\n");
-        exit(1);
-    }
+    // if (!check_port(rPort)) {
+    //     printf("sender-a: port number must be between 30000 and 40000\n");
+    //     exit(1);
+    // }
     if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
         printf("sender-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
@@ -74,7 +75,12 @@ int main(int argc, char* argv[]) {
 
     recvAddr = (struct sockaddr*) recvInfo->ai_addr;
     recvLen = recvInfo->ai_addrlen;
-    sendto(recvFd, "hello", MAX_SIZE, 0, recvAddr, recvLen);
+    if (sendto(recvFd, "hello", MAX_SIZE, 0, recvAddr, recvLen) == -1) {
+        printf("Failed to send message\n");
+        printf("%d\n", errno);
+        printf("%s\n", strerror(errno));
+        exit(1);
+    }
 
     recvfrom(recvFd, message, MAX_SIZE, 0, NULL, NULL);
     printf("%s\n", message);
