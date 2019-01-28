@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         exit(1); 
     }
     recvFd = udp_socket(&recvInfo, NULL, rPort);
-    if (recvFd < 0) {
+    if (recvFd <= 0) {
         printf("receiver-a: failed to create udp socket for given receiver\n");
         exit(1);
     }
