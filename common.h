@@ -9,7 +9,11 @@
 #define WSIZE_MIN 1
 #define WSIZE_MAX 126
 
+#define PROB_MIN 1
+#define PROB_MAX 100
+
 #define TIME_MIN 1
+#define TIME_MAX 60
 
 #define MAX_SIZE 1000
 

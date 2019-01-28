@@ -15,25 +15,30 @@
 
 
 int main(int argc, char* argv[]) {
+    char* input;
     char* message;
+
     int sNum;
+
     char* rPort;
+
     int wSize;
+    int recvP;
+
     int recvFd;
     struct addrinfo* recvInfo;
     struct sockaddr_storage recvAddr;
     socklen_t recvLen;
-    int inFlags;
-    int rFlags;
 
-    if (argc != 3) {
-        printf("usage: ./receiver-a <port number> <window size>\n");
+    if (argc != 4) {
+        printf("usage: ./receiver-a <port number> <window size> <probability>\n");
         exit(1);
     }
 
     /* Arguments and connect */
     rPort = argv[1];
     wSize = atoi(argv[2]);
+    recvP = atoi(argv[3]);
     if (!check_port(rPort)) {
         printf("receiver-a: port number must be between 30000 and 40000\n");
         exit(1);
@@ -42,6 +47,11 @@ int main(int argc, char* argv[]) {
         printf("receiver-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
+    if (recvP < PROB_MIN || recvP > PROB_MAX) {
+        printf("receiver-a: probability must be between %d and %d\n", PROB_MIN, PROB_MAX);
+        exit(1); 
+    }
+
     recvFd = udp_socket(&recvInfo, NULL, rPort);
     if (recvFd <= 0) {
         printf("receiver-a: failed to create udp socket for given receiver\n");
@@ -53,13 +63,12 @@ int main(int argc, char* argv[]) {
     }
 
     /* Setup the interactions */
+    input = calloc(MAX_SIZE - 1, sizeof(char));
     message = calloc(MAX_SIZE, sizeof(char));
     if (message == NULL) {
         printf("receiver-a: failed to allocate necessary memory\n");
         exit(1);
     }
-    // inFlags = unblock_fd(STD_IN);
-    // rFlags = unblock_fd(recvFd);
 
     recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
     printf("%s\n", message);
@@ -74,31 +83,17 @@ int main(int argc, char* argv[]) {
     exit(0);
 
     /* Interact with the user */
-    // bCount = 0;
-    // sNum = 0;
-    // while (1) {
-    //     printf("receiver-a? ");
+    bCount = 0;
+    sNum = 0;
+    while (1) {
+        recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
 
-    //     message = calloc(MAX_SIZE, sizeof(char));
-    //     if (message == NULL) {
-    //         printf("receiver-a: failed to allocate necessary memory\n");
-    //         exit(1);
-    //     }
-
-    //     while (1) {
-    //         if (read(STD_IN, input, MAX_SIZE-1) != -1) {
-    //             message[0] = (char) sNum;
-    //             sprintf(&message[1], "%s", input);
-    //             buffer[sNum] = message;
-
-    //             sNum += 1;
-    //             sNum = sNum % (wSize+1);
-    //             break;
-    //         }
-    //     }
-    // }
-
-    // block_fd(STD_IN, inFlags);
+        printf("receiver-a: reveived message? (Y/N) \n");
+        read(STD_IN, input, MAX_SIZE - 1);
+        if (strcmp(input, "Y")) {
+            printf("receiver-a: message received, handle it!\n");
+        }
+    }
 
     close(recvFd);
     exit(0);
