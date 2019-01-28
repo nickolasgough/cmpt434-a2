@@ -42,7 +42,8 @@ int main(int argc, char* argv[]) {
         printf("receiver-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
-    if (!udp_socket(&recvFd, &recvInfo, NULL, rPort)) {
+    recvFd = udp_socket(&recvInfo, NULL, rPort);
+    if (recvFd < 0) {
         printf("receiver-a: failed to create udp socket for given receiver\n");
         exit(1);
     }

@@ -39,14 +39,10 @@ int block_fd(int fd, int flags) {
     return fcntl(fd, F_SETFL, flags);
 }
 
-int udp_socket(int* outFd, struct addrinfo** outInfo, char* mName, char* port) {
+int udp_socket(struct addrinfo** outInfo, char* mName, char* port) {
     struct addrinfo* pAi;
     struct addrinfo hints;
     int sockFd;
-    
-    if (port == NULL) {
-        return 0;
-    }
     
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -55,18 +51,12 @@ int udp_socket(int* outFd, struct addrinfo** outInfo, char* mName, char* port) {
     hints.ai_flags = AI_PASSIVE;
     
     if (getaddrinfo(mName, port, &hints, &pAi) != 0) {
-        return 0;
+        return -1;
     }
     if (pAi->ai_socktype != SOCK_DGRAM || pAi->ai_protocol != IPPROTO_UDP) {
-        return 0;
+        return -1;
     }
     
-    sockFd = socket(pAi->ai_family, pAi->ai_socktype, pAi->ai_protocol);
-    if (sockFd < 0) {
-        return 0;
-    }
-    
-    *outFd = sockFd;
     *outInfo = pAi;
-    return 1;
+    return socket(pAi->ai_family, pAi->ai_socktype, pAi->ai_protocol);
 }

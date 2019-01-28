@@ -55,7 +55,8 @@ int main(int argc, char* argv[]) {
     }
     printf("%s\n", rName);
     printf("%s\n", rPort);
-    if (!udp_socket(&recvFd, &recvInfo, rName, rPort)) {
+    recvFd = udp_socket(&recvInfo, rName, rPort);
+    if (recvFd < 0) {
         printf("sender-a: failed to create udp socket for given receiver\n");
         exit(1);
     }

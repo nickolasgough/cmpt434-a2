@@ -20,4 +20,4 @@ int unblock_fd(int fd);
 
 int block_fd(int fd, int flags);
 
-int udp_socket(int* outFd, struct addrinfo** outInfo, char* mName, char* port);
+int udp_socket(struct addrinfo** outInfo, char* mName, char* port);
