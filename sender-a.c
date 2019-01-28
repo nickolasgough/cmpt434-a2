@@ -1,0 +1,112 @@
+/* Nickolas Gough, nvg081, 11181823 */
+
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <string.h>
+
+#include "common.h"
+
+
+int main(int argc, char* argv[]) {
+    char** buffer;
+    int bCount;
+    char* input;
+    char* message;
+    int sNum;
+    char* rName;
+    char* rPort;
+    int wSize;
+    int timeout;
+    int recvFd;
+    struct addrinfo* recvInfo;
+    struct sockaddr* recvAddr;
+    socklen_t recvLen;
+    int inFlags;
+    int rFlags;
+
+    if (argc != 5) {
+        printf("usage: ./sender-a <host IP> <port number> <window size> <timeout>\n");
+        exit(1);
+    }
+
+    /* Arguments and connect */
+    rName = argv[1];
+    rPort = argv[2];
+    wSize = atoi(argv[3]);
+    timeout = atoi(argv[4]);
+    if (!check_port(rPort)) {
+        printf("sender-a: port number must be between 30000 and 40000\n");
+        exit(1);
+    }
+    if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
+        printf("sender-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
+        exit(1); 
+    }
+    if (timeout < 0) {
+        printf("sender-a: timeout must be greater than zero\n");
+        exit(1);   
+    }
+    if (!udp_socket(&recvFd, &recvInfo, rName, rPort)) {
+        printf("sender-a: failed to create udp socket for given receiver\n");
+        exit(1);
+    }
+    if (connect(recvFd, recvInfo->ai_addr, recvInfo->ai_addrlen) == -1) {
+        printf("sender-a: failed to connect udp socket for given receiver\n");
+        exit(1);
+    }
+
+    /* Setup the interactions */
+    buffer = calloc(MAX_SIZE, sizeof(char*));
+    input = calloc(MAX_SIZE-1, sizeof(char));
+    message = calloc(MAX_SIZE, sizeof(char));
+    if (buffer == NULL || message == NULL || input == NULL) {
+        printf("sender-a: failed to allocate necessary memory\n");
+        exit(1);
+    }
+    inFlags = unblock_fd(STD_IN);
+    rFlags = unblock_fd(recvFd);
+
+    recvAddr = (struct sockaddr*) recvInfo->ai_addr;
+    recvLen = recvInfo->ai_addrlen;
+    sendto(recvFd, "hello", MAX_SIZE, 0, recvAddr, recvLen);
+
+    recvfrom(recvFd, message, MAX_SIZE, 0, NULL, NULL);
+    printf("%s\n", message);
+    exit(0);
+
+    /* Interact with the user */
+    // bCount = 0;
+    // sNum = 0;
+    // while (1) {
+    //     printf("sender-a? ");
+
+    //     message = calloc(MAX_SIZE, sizeof(char));
+    //     if (message == NULL) {
+    //         printf("sender-a: failed to allocate necessary memory\n");
+    //         exit(1);
+    //     }
+
+    //     while (1) {
+    //         if (read(STD_IN, input, MAX_SIZE-1) != -1) {
+    //             message[0] = (char) sNum;
+    //             sprintf(&message[1], "%s", input);
+    //             buffer[sNum] = message;
+
+    //             sNum += 1;
+    //             sNum = sNum % (wSize+1);
+    //             break;
+    //         }
+    //     }
+    // }
+
+    block_fd(STD_IN, inFlags);
+
+    close(recvFd);
+    exit(0);
+}
