@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
     bCount = 0;
     while (1) {
         printf("sender-a? ");
+        fflush(stdout);
 
         message = calloc(MAX_SIZE, sizeof(char));
         if (message == NULL) {
