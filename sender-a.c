@@ -97,8 +97,9 @@ int main(int argc, char* argv[]) {
         if (sValue != 0) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
-                    printf("sender-a: failed to collect input due to full buffer\n");
-                    fflush(stdin);
+                    printf("sender-a: failed to send due to full buffer\n");
+                    read(STD_IN, input, MSG_SIZE - 1);
+                    memset(input, 0, MSG_SIZE - 1);
                     continue;
                 }
 
