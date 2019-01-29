@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     buffer = calloc(wSize + 1, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     message = calloc(MSG_SIZE, sizeof(char));
-    if (buffer == NULL || message == NULL || input == NULL) {
+    if (buffer == NULL || input == NULL || message == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
     }
@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
                     printf("Failed to send message\n");
                     printf("%d - %s\n", errno, strerror(errno));
                 }
+                printf("message sent\n");
 
                 message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {

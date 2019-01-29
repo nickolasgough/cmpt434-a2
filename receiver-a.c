@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
             printf("Failed to receive message\n");
             printf("%d - %s\n", errno, strerror(errno));
         }
+        printf("message received\n");
 
         printf("receiver-a: reveived message? (Y/N) ");
         read(STD_IN, input, MSG_SIZE - 1);
