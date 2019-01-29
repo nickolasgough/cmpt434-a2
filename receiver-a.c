@@ -76,8 +76,8 @@ int main(int argc, char* argv[]) {
     nNum = 0;
     sNum = 0;
     while (1) {
-        recvLen = sizeof(recvAddr);
         memset(message, 0, MSG_SIZE);
+        recvLen = sizeof(recvAddr);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
             printf("receiver-a: failed to receive message\n");
         }
@@ -94,6 +94,8 @@ int main(int argc, char* argv[]) {
                 nNum = (nNum + 1) % (wSize + 1);
             } else {
                 printf("receiver-a: unexpected message %d - %s\n", sNum, message + 1);
+                memset(message + 1, 0, MSG_SIZE - 1);
+
                 continue;
             }
 
