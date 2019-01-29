@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
     /* Setup the interactions */
     buffer = calloc(wSize + 1, sizeof(char*));
-    input = calloc(MAX_SIZE - HEAD_SIZE, sizeof(char));
+    input = calloc(MAX_SIZE - 1, sizeof(char));
     message = calloc(MAX_SIZE, sizeof(char));
     if (buffer == NULL || message == NULL || input == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
@@ -99,18 +99,18 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
 
-                read(STD_IN, input, MAX_SIZE - HEAD_SIZE);
+                read(STD_IN, input, MAX_SIZE - 1);
                 printf("got input %s\n", input);
 
                 sNum = ((bHead + bCount) % wSize);
-                sprintf(message, "%d", sNum);
-                sprintf((message + HEAD_SIZE), "%s", input);
+                message[0] = (char) sNum;
+                sprintf(message + 1, "%s", input);
                 memset(input, 0, MAX_SIZE - 1);
 
                 buffer[sNum] = message;
                 bCount += 1;
 
-                printf("sending message %s\n", message);
+                printf("sending message %d %s\n", sNum, message + 1);
                 sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen);
 
                 message = calloc(MAX_SIZE, sizeof(char));

@@ -78,7 +78,8 @@ int main(int argc, char* argv[]) {
         printf("receiver-a: reveived message? (Y/N) \n");
         read(STD_IN, input, MAX_SIZE - 1);
         if (strcmp(input, "Y")) {
-            printf("receiver-a: message received, handle it!\n");
+            sNum = (int) message[0];
+            printf("received message %d %s\n", sNum, message + 1);
         }
     }
 

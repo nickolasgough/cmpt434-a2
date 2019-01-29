@@ -25,20 +25,6 @@ int check_port(char* port) {
     return 1;
 }
 
-int unblock_fd(int fd) {
-    int flags = fcntl(fd, F_GETFL);
-    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-        return -1;
-    }
-    
-    return flags;
-}
-
-
-int block_fd(int fd, int flags) {
-    return fcntl(fd, F_SETFL, flags);
-}
-
 int udp_socket(struct addrinfo** outInfo, char* mName, char* port) {
     struct addrinfo* pAi;
     struct addrinfo hints;
