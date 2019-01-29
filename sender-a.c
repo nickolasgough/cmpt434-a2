@@ -144,7 +144,6 @@ int main(int argc, char* argv[]) {
                     free(buffer[i]);
                     buffer[i] = NULL;
 
-                    bHead = (bHead + 1) % (wSize + 1);
                     bCount -= 1;
 
                     c += 1;
@@ -152,6 +151,7 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                 }
+                bHead = (sNum + 1) % (wSize + 1);
                 printf("sender-a: acknowledgement for %d successful\n", sNum);
 
                 free(message);
