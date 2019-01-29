@@ -74,6 +74,7 @@ int main(int argc, char* argv[]) {
     sNum = 0;
     while (1) {
         printf("receiving message\n");
+        recvLen = sizeof(recvAddr);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
             printf("Failed to receive message\n");
             printf("%d - %s\n", errno, strerror(errno));
