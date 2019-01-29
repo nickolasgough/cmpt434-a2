@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
 
                 bCount += 1;
 
+                printf("sending message %s\n", message);
                 sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen);
             }
             if (FD_ISSET(recvFd, &fds)) {
