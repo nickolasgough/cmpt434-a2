@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
                     printf("sender-a: failed to collect input due to full buffer\n");
+                    fflush(stdin);
                     continue;
                 }
 
