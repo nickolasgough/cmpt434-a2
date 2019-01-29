@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
 
     int sNum;
     int wSize;
-    struct timeval timeout;
+    int tOut;
+    struct timeval tv;
 
     int recvFd;
     struct addrinfo* recvInfo;
@@ -47,8 +48,7 @@ int main(int argc, char* argv[]) {
     rName = argv[1];
     rPort = argv[2];
     wSize = atoi(argv[3]);
-    timeout.tv_sec = atoi(argv[4]);
-    timeout.tv_usec = 0;
+    tOut = atoi(argv[4]);
     if (!check_port(rPort)) {
         printf("sender-a: port number must be between 30000 and 40000\n");
         exit(1);
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
         printf("sender-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
-    if (timeout.tv_sec < TIME_MIN || timeout.tv_sec > TIME_MAX) {
+    if (tOut < TIME_MIN || tOut > TIME_MAX) {
         printf("sender-a: timeout must be between %d and %d\n", TIME_MIN, TIME_MAX);
         exit(1);   
     }
@@ -96,6 +96,8 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
+        tv.tv_sec = tOut;
+        tv.tv_sec = 0;
         sValue = select(recvFd + 1, &fds, NULL, NULL, &timeout);
         if (sValue != 0) {
             if (FD_ISSET(STD_IN, &fds)) {
