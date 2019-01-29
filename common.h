@@ -7,7 +7,7 @@
 #define PORT_MAX 40000
 
 #define WSIZE_MIN 1
-#define WSIZE_MAX 126
+#define WSIZE_MAX 999
 
 #define PROB_MIN 1
 #define PROB_MAX 100
@@ -15,6 +15,7 @@
 #define TIME_MIN 1
 #define TIME_MAX 60
 
+#define HEAD_SIZE 3
 #define MAX_SIZE 1000
 
 
