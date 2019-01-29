@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
         tv.tv_sec = tOut;
         tv.tv_sec = 0;
-        sValue = select(recvFd + 1, &fds, NULL, NULL, &timeout);
+        sValue = select(recvFd + 1, &fds, NULL, NULL, &tv);
         if (sValue != 0) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
