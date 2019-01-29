@@ -88,12 +88,12 @@ int main(int argc, char* argv[]) {
         if (input[0] == 'Y') {
             sNum = (int) message[0];
             if (sNum == nNum) {
-                printf("receiver-a: expected message %d - %s\n", sNum, message + 1);
+                printf("receiver-a: expected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
                 nNum = (nNum + 1) % (wSize + 1);
             } else {
-                printf("receiver-a: unexpected message %d - %s\n", sNum, message + 1);
+                printf("receiver-a: unexpected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
                 continue;
@@ -111,6 +111,8 @@ int main(int argc, char* argv[]) {
             } else {
                 printf("receiver-a: acknowledgement for %d unsuccessful\n", sNum);
             }
+        } else {
+            printf("receiver-a: message not successfully received\n");
         }
     }
 
