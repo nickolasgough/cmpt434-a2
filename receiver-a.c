@@ -73,7 +73,11 @@ int main(int argc, char* argv[]) {
     /* Interact with the user */
     sNum = 0;
     while (1) {
-        recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
+        printf("receiving message\n");
+        if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
+            printf("Failed to receive message\n");
+            printf("%d - %s\n", errno, strerror(errno));
+        }
 
         printf("receiver-a: reveived message? (Y/N) ");
         read(STD_IN, input, MSG_SIZE - 1);

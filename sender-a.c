@@ -108,6 +108,7 @@ int main(int argc, char* argv[]) {
                 buffer[sNum] = message;
                 bCount += 1;
 
+                printf("sending message\n");
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                     printf("Failed to send message\n");
                     printf("%d - %s\n", errno, strerror(errno));
