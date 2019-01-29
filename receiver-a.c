@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
     while (1) {
         recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
 
-        printf("receiver-a: reveived message? (Y/N) \n");
+        printf("receiver-a: reveived message? (Y/N) ");
         read(STD_IN, input, MSG_SIZE - 1);
         if (strcmp(input, "Y")) {
             sNum = (int) message[0];
