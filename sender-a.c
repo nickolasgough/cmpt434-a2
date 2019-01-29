@@ -110,8 +110,9 @@ int main(int argc, char* argv[]) {
                 sNum = ((bHead + bCount) % wSize);
                 message[0] = (char) sNum;
                 sprintf((message + 1), "%s", input);
-                buffer[sNum] = message;
+                memset(input, 0, MAX_SIZE - 1);
 
+                buffer[sNum] = message;
                 bCount += 1;
 
                 printf("sending message %s\n", message);
