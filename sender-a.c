@@ -123,6 +123,12 @@ int main(int argc, char* argv[]) {
                 }
             }
             if (FD_ISSET(recvFd, &fds)) {
+                message = calloc(MSG_SIZE, sizeof(char));
+                if (message == NULL) {
+                    printf("sender-a: failed to allocate necessary memory\n");
+                    exit(1);
+                }
+
                 if (recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL) == -1) {
                     printf("sender-a: failed to receive message\n");
                 }
@@ -136,8 +142,9 @@ int main(int argc, char* argv[]) {
                 buffer[sNum] = NULL;
                 printf("sender-a: acknowledgement for %d successful\n", sNum);
 
-                bCount -= 1;
                 bHead = (bHead + 1) % (wSize + 1);
+                bCount -= 1;
+                free(message);
             }
         } else {
             if (bCount > 0) {
@@ -161,5 +168,6 @@ int main(int argc, char* argv[]) {
     }
 
     close(recvFd);
+    free(input);
     exit(0);
 }
