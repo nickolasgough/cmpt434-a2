@@ -18,8 +18,7 @@ int main(int argc, char* argv[]) {
     char* input;
     char* message;
 
-    int sNum;
-    int nNum;
+    int nNum, pNum, sNum;
     int rNum;
 
     char* rPort;
@@ -92,6 +91,10 @@ int main(int argc, char* argv[]) {
                 memset(message + 1, 0, MSG_SIZE - 1);
 
                 nNum = (nNum + 1) % (wSize + 1);
+                pNum = sNum;
+            } else if (sNum == pNum) {
+                printf("receiver-a: retransmitted message %d - %s", sNum, message + 1);
+                memset(message + 1, 0, MSG_SIZE - 1);
             } else {
                 printf("receiver-a: unexpected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
@@ -99,7 +102,7 @@ int main(int argc, char* argv[]) {
                 continue;
             }
 
-            rNum = (rand() % recvP) + 1;
+            rNum = (rand() % PROB_MAX) + 1;
             if (rNum <= recvP) {
                 printf("receiver-a: acknowledgement for %d successful\n", sNum);
 

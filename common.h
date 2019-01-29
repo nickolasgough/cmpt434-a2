@@ -7,7 +7,7 @@
 #define PORT_MAX 40000
 
 #define WSIZE_MIN 1
-#define WSIZE_MAX 999
+#define WSIZE_MAX 126
 
 #define PROB_MIN 1
 #define PROB_MAX 100
