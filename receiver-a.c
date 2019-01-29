@@ -83,7 +83,6 @@ int main(int argc, char* argv[]) {
     exit(0);
 
     /* Interact with the user */
-    bCount = 0;
     sNum = 0;
     while (1) {
         recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);

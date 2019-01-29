@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
         printf("sender-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
-    if (timeout < TIME_MIN || timeout > TIME_MAX) {
+    if (timeout.tv_usec < TIME_MIN || timeout.tv_sec > TIME_MAX) {
         printf("sender-a: timeout must be between %d and %d\n", TIME_MIN, TIME_MAX);
         exit(1);   
     }
@@ -83,17 +83,6 @@ int main(int argc, char* argv[]) {
 
     recvAddr = (struct sockaddr*) recvInfo->ai_addr;
     recvLen = recvInfo->ai_addrlen;
-    // sprintf(message, "%s", "hello");
-    // if (sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen) == -1) {
-    //     printf("Failed to send message\n");
-    //     printf("%d\n", errno);
-    //     printf("%s\n", strerror(errno));
-    //     exit(1);
-    // }
-
-    // recvfrom(recvFd, message, MAX_SIZE, 0, NULL, NULL);
-    // printf("%s\n", message);
-    // exit(0);
 
     /* Interact with the user */
     bHead = 0;

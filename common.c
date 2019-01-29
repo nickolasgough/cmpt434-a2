@@ -42,7 +42,6 @@ int block_fd(int fd, int flags) {
 int udp_socket(struct addrinfo** outInfo, char* mName, char* port) {
     struct addrinfo* pAi;
     struct addrinfo hints;
-    int sockFd;
     
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
