@@ -83,7 +83,10 @@ int main(int argc, char* argv[]) {
             memset(message + 1, 0, MSG_SIZE - 1);
 
             sprintf(message + 1, "%s", "ack");
-            sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen);
+            if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
+                printf("Failed to send message\n");
+                printf("%d - %s\n", errno, strerror(errno));
+            }
         }
     }
 

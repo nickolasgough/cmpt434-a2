@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
         FD_ZERO(&fds);
         FD_SET(STD_IN, &fds);
         FD_SET(recvFd, &fds);
-        
+
         tv.tv_sec = tOut;
         tv.tv_usec = 0;
         sValue = select(recvFd + 1, &fds, NULL, NULL, &tv);
@@ -108,7 +108,10 @@ int main(int argc, char* argv[]) {
                 buffer[sNum] = message;
                 bCount += 1;
 
-                sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen);
+                if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
+                    printf("Failed to send message\n");
+                    printf("%d - %s\n", errno, strerror(errno));
+                }
 
                 message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {
