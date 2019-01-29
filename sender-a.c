@@ -139,19 +139,18 @@ int main(int argc, char* argv[]) {
 
                 sNum = (int) message[0];
                 c = 0;
-                while (c < bCount) {
-                    i = (bHead + c) % (wSize + 1);
-                    free(buffer[i]);
+                while (bCount > 0) {
+                    free(buffer[bHead]);
                     buffer[i] = NULL;
 
-                    bCount -= 1;
-
-                    c += 1;
-                    if (i == sNum) {
+                    if (bHead == sNum) {
+                        bHead = (bHead + 1) % (wSize + 1);
+                        bCount -= 1;
                         break;
                     }
+                    bHead = (sNum + 1) % (wSize + 1);
+                    bCount -= 1;
                 }
-                bHead = (sNum + 1) % (wSize + 1);
                 printf("sender-a: acknowledgement for %d successful\n", sNum);
 
                 free(message);
