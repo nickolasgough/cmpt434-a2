@@ -39,6 +39,8 @@ int main(int argc, char* argv[]) {
     fd_set fds;
     int sValue;
 
+    int c, i;
+
     if (argc != 5) {
         printf("usage: ./sender-a <host IP> <port number> <window size> <timeout>\n");
         exit(1);
@@ -71,8 +73,7 @@ int main(int argc, char* argv[]) {
     /* Setup the interactions */
     buffer = calloc(wSize + 1, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
-    message = calloc(MSG_SIZE, sizeof(char));
-    if (buffer == NULL || input == NULL || message == NULL) {
+    if (buffer == NULL || input == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
     }
@@ -100,6 +101,12 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
 
+                message = calloc(MSG_SIZE, sizeof(char));
+                if (message == NULL) {
+                    printf("sender-a: failed to allocate necessary memory\n");
+                    exit(1);
+                }
+
                 read(STD_IN, input, MSG_SIZE - 1);
                 sNum = (bHead + bCount) % (wSize + 1);
                 message[0] = (char) sNum;
@@ -109,23 +116,16 @@ int main(int argc, char* argv[]) {
                 buffer[sNum] = message;
                 bCount += 1;
 
-                printf("sending message\n");
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
-                    printf("Failed to send message\n");
-                    printf("%d - %s\n", errno, strerror(errno));
-                }
-                printf("message sent\n");
-
-                message = calloc(MSG_SIZE, sizeof(char));
-                if (message == NULL) {
-                    printf("sender-a: failed to allocate necessary memory\n");
-                    exit(1);
+                    printf("sender-a: failed to send message\n");
                 }
             }
             if (FD_ISSET(recvFd, &fds)) {
-                printf("receiving message\n");
-                recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL);
-                printf("received message\n");
+                if (recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL) == -1) {
+                    printf("sender-a: failed to receive message\n");
+                }
+                printf("sender-a: acknowledgement for %d successful\n", );
+
                 sNum = (int) message[0];
                 free(buffer[sNum]);
                 buffer[sNum] = NULL;
@@ -134,7 +134,17 @@ int main(int argc, char* argv[]) {
                 bHead = (bHead + 1) % (wSize + 1);
             }
         } else {
-            printf("sender-a: timeout, start retransmitting messages!\n");
+            printf("sender-a: timeout, retransmitting begnning with %d\n", bHead);
+
+            c = 0;
+            while (n < bCount) {
+                i = (bHead + c) % (wSize + 1);
+                message = buffer[i];
+
+                if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
+                    printf("sender-a: failed to send message\n");
+                }
+            }
         }
     }
 

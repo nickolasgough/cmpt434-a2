@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
     char* message;
 
     int sNum;
+    int nNum;
+    int rNum;
 
     char* rPort;
 
@@ -71,27 +73,39 @@ int main(int argc, char* argv[]) {
     }
 
     /* Interact with the user */
+    nNum = 0;
     sNum = 0;
     while (1) {
-        printf("receiving message\n");
         recvLen = sizeof(recvAddr);
+        memset(message, 0, MSG_SIZE);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
-            printf("Failed to receive message\n");
-            printf("%d - %s\n", errno, strerror(errno));
+            printf("receiver-a: failed to receive message\n");
         }
-        printf("message received\n");
 
-        printf("receiver-a: reveived message? (Y/N)\n");
+        printf("receiver-a: received message? (Y/N)\n");
+        memset(input, 0, MSG_SIZE - 1);
         read(STD_IN, input, MSG_SIZE - 1);
         if (input[0] == 'Y') {
             sNum = (int) message[0];
-            printf("receiver-a: received message %d - %s\n", sNum, message + 1);
-            memset(message + 1, 0, MSG_SIZE - 1);
+            if (sNum == nNum) {
+                printf("receiver-a: expected message %d - %s\n", sNum, message + 1);
+                memset(message + 1, 0, MSG_SIZE - 1);
+            } else {
+                printf("receiver-a: unexpected message %d - %s\n", sNum, message + 1);
+                continue;
+            }
 
-            sprintf(message + 1, "%s", "ack");
-            if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
-                printf("Failed to send message\n");
-                printf("%d - %s\n", errno, strerror(errno));
+            rNum = (rand() % recvP) + 1;
+            if (rNum <= recvP) {
+                printf("receiver-a: acknowledgement for %d successful\n", sNum);
+
+                memset(message + 1, 0, MSG_SIZE - 1);
+                sprintf(message + 1, "%s", "ack");
+                if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
+                    printf("receiver-a: failed to send message\n");
+                }
+            } else {
+                printf("receiver-a: acknowledgement for %d unsuccessful\n", sNum);
             }
         }
     }
