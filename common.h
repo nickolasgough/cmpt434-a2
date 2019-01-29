@@ -16,7 +16,7 @@
 #define TIME_MAX 60
 
 #define HEAD_SIZE 3
-#define MAX_SIZE 1000
+#define MSG_SIZE 1000
 
 
 int check_port(char* port);

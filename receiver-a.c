@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
     }
 
     /* Setup the interactions */
-    input = calloc(MAX_SIZE - 1, sizeof(char));
-    message = calloc(MAX_SIZE, sizeof(char));
+    input = calloc(MSG_SIZE - 1, sizeof(char));
+    message = calloc(MSG_SIZE, sizeof(char));
     if (message == NULL) {
         printf("receiver-a: failed to allocate necessary memory\n");
         exit(1);
@@ -73,13 +73,17 @@ int main(int argc, char* argv[]) {
     /* Interact with the user */
     sNum = 0;
     while (1) {
-        recvfrom(recvFd, message, MAX_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
+        recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen);
 
         printf("receiver-a: reveived message? (Y/N) \n");
-        read(STD_IN, input, MAX_SIZE - 1);
+        read(STD_IN, input, MSG_SIZE - 1);
         if (strcmp(input, "Y")) {
             sNum = (int) message[0];
-            printf("received message %d %s\n", sNum, message + 1);
+            printf("receiver-a: received message %d - %s\n", sNum, message + 1);
+            memset(message + 1, 0, MSG_SIZE - 1);
+
+            sprintf(message + 1, "%s", "ack");
+            sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen);
         }
     }
 

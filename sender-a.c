@@ -70,8 +70,8 @@ int main(int argc, char* argv[]) {
 
     /* Setup the interactions */
     buffer = calloc(wSize + 1, sizeof(char*));
-    input = calloc(MAX_SIZE - 1, sizeof(char));
-    message = calloc(MAX_SIZE, sizeof(char));
+    input = calloc(MSG_SIZE - 1, sizeof(char));
+    message = calloc(MSG_SIZE, sizeof(char));
     if (buffer == NULL || message == NULL || input == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
@@ -99,35 +99,31 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
 
-                read(STD_IN, input, MAX_SIZE - 1);
-                printf("got input %s\n", input);
-
-                sNum = ((bHead + bCount) % wSize);
+                read(STD_IN, input, MSG_SIZE - 1);
+                sNum = (bHead + bCount) % (wSize + 1);
                 message[0] = (char) sNum;
                 sprintf(message + 1, "%s", input);
-                memset(input, 0, MAX_SIZE - 1);
+                memset(input, 0, MSG_SIZE - 1);
 
                 buffer[sNum] = message;
                 bCount += 1;
 
-                printf("sending message %d %s\n", sNum, message + 1);
-                sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen);
+                sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen);
 
-                message = calloc(MAX_SIZE, sizeof(char));
+                message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {
                     printf("sender-a: failed to allocate necessary memory\n");
                     exit(1);
                 }
             }
             if (FD_ISSET(recvFd, &fds)) {
-                recvfrom(recvFd, message, MAX_SIZE, 0, NULL, NULL);
+                recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL);
                 sNum = (int) message[0];
                 free(buffer[sNum]);
                 buffer[sNum] = NULL;
 
                 bCount -= 1;
-                bHead += 1;
-                bHead = bHead % (wSize + 1);
+                bHead = (bHead + 1) % (wSize + 1);
             }
         } else {
             printf("sender-a: timeout, start retransmitting messages!\n");
