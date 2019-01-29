@@ -136,7 +136,12 @@ int main(int argc, char* argv[]) {
                 bHead = (bHead + 1) % (wSize + 1);
             }
         } else {
-            printf("sender-a: timeout, retransmitting begnning with %d\n", bHead);
+            if (bCount > 0) {
+                printf("sender-a: timeout, retransmitting begnning with %d\n", bHead);
+            } else {
+                printf("sender-a: timeout with empty buffer, doing nothing\n");
+                continue;
+            }
 
             c = 0;
             while (c < bCount) {
