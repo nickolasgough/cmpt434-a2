@@ -77,6 +77,10 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
+    FD_ZERO(&fds);
+    FD_SET(STD_IN, &fds);
+    FD_SET(recvFd, &fds);
+
     recvAddr = (struct sockaddr*) recvInfo->ai_addr;
     recvLen = recvInfo->ai_addrlen;
 
@@ -84,10 +88,6 @@ int main(int argc, char* argv[]) {
     bHead = 0;
     bCount = 0;
     while (1) {
-        FD_ZERO(&fds);
-        FD_SET(STD_IN, &fds);
-        FD_SET(recvFd, &fds);
-
         tv.tv_sec = tOut;
         tv.tv_usec = 0;
         sValue = select(recvFd + 1, &fds, NULL, NULL, &tv);
