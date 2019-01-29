@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 
         printf("receiver-a: reveived message? (Y/N) ");
         fgets(input, MSG_SIZE - 1, stdin);
-        if (strcmp(input, "Y")) {
+        if (strcmp(input, "Y") == 0) {
             sNum = (int) message[0];
             printf("receiver-a: received message %d - %s\n", sNum, message + 1);
             memset(message + 1, 0, MSG_SIZE - 1);
