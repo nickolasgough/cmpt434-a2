@@ -126,6 +126,10 @@ int main(int argc, char* argv[]) {
                 if (recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL) == -1) {
                     printf("sender-a: failed to receive message\n");
                 }
+                if (strcmp(message + 1, "ack") != 0) {
+                    printf("sender-a: received an unexpected message\n");
+                    continue;
+                }
 
                 sNum = (int) message[0];
                 free(buffer[sNum]);
