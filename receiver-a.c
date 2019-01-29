@@ -90,6 +90,8 @@ int main(int argc, char* argv[]) {
             if (sNum == nNum) {
                 printf("receiver-a: expected message %d - %s\n", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
+
+                nNum = (nNum + 1) % (wSize + 1);
             } else {
                 printf("receiver-a: unexpected message %d - %s\n", sNum, message + 1);
                 continue;
