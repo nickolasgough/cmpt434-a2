@@ -90,6 +90,7 @@ int main(int argc, char* argv[]) {
 
         tv.tv_sec = tOut;
         tv.tv_usec = 0;
+        printf("sender-a: message to send?\n");
         sValue = select(recvFd + 1, &fds, NULL, NULL, &tv);
 
         if (sValue != 0) {
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
 
-                fgets(input, MSG_SIZE - 1, stdin);
+                read(STD_IN, input, MSG_SIZE - 1);
                 sNum = (bHead + bCount) % (wSize + 1);
                 message[0] = (char) sNum;
                 sprintf(message + 1, "%s", input);
