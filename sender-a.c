@@ -88,15 +88,10 @@ int main(int argc, char* argv[]) {
     bHead = 0;
     bCount = 0;
     while (1) {
-        message = calloc(MAX_SIZE, sizeof(char));
-        if (message == NULL) {
-            printf("sender-a: failed to allocate necessary memory\n");
-            exit(1);
-        }
-
         tv.tv_sec = tOut;
         tv.tv_usec = 0;
         sValue = select(recvFd + 1, &fds, NULL, NULL, &tv);
+
         if (sValue != 0) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
@@ -117,6 +112,12 @@ int main(int argc, char* argv[]) {
 
                 printf("sending message %s\n", message);
                 sendto(recvFd, message, MAX_SIZE, 0, recvAddr, recvLen);
+
+                message = calloc(MAX_SIZE, sizeof(char));
+                if (message == NULL) {
+                    printf("sender-a: failed to allocate necessary memory\n");
+                    exit(1);
+                }
             }
             if (FD_ISSET(recvFd, &fds)) {
                 recvfrom(recvFd, message, MAX_SIZE, 0, NULL, NULL);
