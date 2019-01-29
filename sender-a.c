@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
                 printf("got input %s\n", input);
 
                 sNum = ((bHead + bCount) % wSize);
-                sprintf(message, "%s", itoa(sNum));
+                itoa(message, sNum, 10);
                 sprintf((message + HEAD_SIZE), "%s", input);
                 memset(input, 0, MAX_SIZE - 1);
 
