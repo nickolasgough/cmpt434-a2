@@ -88,9 +88,6 @@ int main(int argc, char* argv[]) {
     bHead = 0;
     bCount = 0;
     while (1) {
-        printf("sender-a? ");
-        fflush(stdin);
-
         message = calloc(MAX_SIZE, sizeof(char));
         if (message == NULL) {
             printf("sender-a: failed to allocate necessary memory\n");
@@ -108,6 +105,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 read(STD_IN, input, MAX_SIZE - 1);
+                printf("got input %s\n", input);
 
                 sNum = ((bHead + bCount) % wSize);
                 message[0] = (char) sNum;
