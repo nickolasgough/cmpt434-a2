@@ -122,7 +122,9 @@ int main(int argc, char* argv[]) {
                 }
             }
             if (FD_ISSET(recvFd, &fds)) {
+                printf("receiving message\n");
                 recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL);
+                printf("received message\n");
                 sNum = (int) message[0];
                 free(buffer[sNum]);
                 buffer[sNum] = NULL;
