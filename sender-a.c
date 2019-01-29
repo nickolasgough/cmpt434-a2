@@ -124,11 +124,11 @@ int main(int argc, char* argv[]) {
                 if (recvfrom(recvFd, message, MSG_SIZE, 0, NULL, NULL) == -1) {
                     printf("sender-a: failed to receive message\n");
                 }
-                printf("sender-a: acknowledgement for %d successful\n", );
 
                 sNum = (int) message[0];
                 free(buffer[sNum]);
                 buffer[sNum] = NULL;
+                printf("sender-a: acknowledgement for %d successful\n", sNum);
 
                 bCount -= 1;
                 bHead = (bHead + 1) % (wSize + 1);
@@ -137,13 +137,14 @@ int main(int argc, char* argv[]) {
             printf("sender-a: timeout, retransmitting begnning with %d\n", bHead);
 
             c = 0;
-            while (n < bCount) {
+            while (c < bCount) {
                 i = (bHead + c) % (wSize + 1);
                 message = buffer[i];
 
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                     printf("sender-a: failed to send message\n");
                 }
+                c += 1;
             }
         }
     }
