@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
 
-                read(STD_IN, input, MSG_SIZE - 1);
+                fgets(input, MSG_SIZE - 1, stdin);
                 sNum = (bHead + bCount) % (wSize + 1);
                 message[0] = (char) sNum;
                 sprintf(message + 1, "%s", input);
