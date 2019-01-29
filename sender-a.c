@@ -141,14 +141,14 @@ int main(int argc, char* argv[]) {
                 c = 0;
                 while (bCount > 0) {
                     free(buffer[bHead]);
-                    buffer[i] = NULL;
+                    buffer[bHead] = NULL;
 
                     if (bHead == sNum) {
                         bHead = (bHead + 1) % (wSize + 1);
                         bCount -= 1;
                         break;
                     }
-                    bHead = (sNum + 1) % (wSize + 1);
+                    bHead = (bHead + 1) % (wSize + 1);
                     bCount -= 1;
                 }
                 printf("sender-a: acknowledgement for %d successful\n", sNum);
