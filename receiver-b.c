@@ -99,22 +99,21 @@ int main(int argc, char* argv[]) {
 
                 nNum = (nNum + 1) % (SEQ_MAX + 1);
                 pNum = sNum;
+
                 if (bCount <= 0) {
-                    continue;
-                }
+                    sNum = (int) buffer[bHead][0];
+                    while (sNum == nNum) {
+                        free(message);
 
-                sNum = (int) buffer[bHead][0];
-                while (sNum == nNum) {
-                    free(message);
+                        message = buffer[bHead];
+                        buffer[nNum] = NULL;
+                        bHead = (bHead + 1) % rSize;
 
-                    message = buffer[bHead];
-                    buffer[nNum] = NULL;
-                    bHead = (bHead + 1) % rSize;
+                        printf("receiver-b: buffered message %d - %s", sNum, message + 1);
 
-                    printf("receiver-b: buffered message %d - %s", sNum, message + 1);
-
-                    nNum = (nNum + 1) % (SEQ_MAX + 1);
-                    pNum = sNum;
+                        nNum = (nNum + 1) % (SEQ_MAX + 1);
+                        pNum = sNum;
+                    }
                 }
             } else if (sNum == pNum) {
                 printf("receiver-b: retransmitted message %d - %s", sNum, message + 1);
