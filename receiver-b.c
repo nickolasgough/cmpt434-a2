@@ -15,6 +15,7 @@
 
 
 int main(int argc, char* argv[]) {
+    char** buffer;
     char* input;
     char* message;
 
@@ -31,8 +32,10 @@ int main(int argc, char* argv[]) {
     struct sockaddr_storage recvAddr;
     socklen_t recvLen;
 
+    int i;
+
     if (argc != 4) {
-        printf("usage: ./receiver-a <port number> <window size> <probability>\n");
+        printf("usage: ./receiver-b <port number> <window size> <probability>\n");
         exit(1);
     }
 
@@ -41,33 +44,34 @@ int main(int argc, char* argv[]) {
     wSize = atoi(argv[2]);
     recvP = atoi(argv[3]);
     if (!check_port(rPort)) {
-        printf("receiver-a: port number must be between 30000 and 40000\n");
+        printf("receiver-b: port number must be between 30000 and 40000\n");
         exit(1);
     }
     if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
-        printf("receiver-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
+        printf("receiver-b: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
     if (recvP < PROB_MIN || recvP > PROB_MAX) {
-        printf("receiver-a: probability must be between %d and %d\n", PROB_MIN, PROB_MAX);
+        printf("receiver-b: probability must be between %d and %d\n", PROB_MIN, PROB_MAX);
         exit(1); 
     }
 
     recvFd = udp_socket(&recvInfo, NULL, rPort);
     if (recvFd <= 0) {
-        printf("receiver-a: failed to create udp socket for given receiver\n");
+        printf("receiver-b: failed to create udp socket for given receiver\n");
         exit(1);
     }
     if (bind(recvFd, recvInfo->ai_addr, recvInfo->ai_addrlen) == -1) {
-        printf("receiver-a: failed to bind udp socket for given receiver\n");
+        printf("receiver-b: failed to bind udp socket for given receiver\n");
         exit(1);
     }
 
     /* Claim necessary memory */
+    buffer = calloc(wSize + 1, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     message = calloc(MSG_SIZE, sizeof(char));
-    if (input == NULL || message == NULL) {
-        printf("receiver-a: failed to allocate necessary memory\n");
+    if (buffer == NULL || input == NULL || message == NULL) {
+        printf("receiver-b: failed to allocate necessary memory\n");
         exit(1);
     }
 
@@ -76,14 +80,13 @@ int main(int argc, char* argv[]) {
     sNum = 0;
     while (1) {
         /* Handle incoming message */
-        memset(message, 0, MSG_SIZE);
         recvLen = sizeof(recvAddr);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
-            printf("receiver-a: failed to receive message\n");
+            printf("receiver-b: failed to receive message\n");
         }
 
         /* Handle user input */
-        printf("receiver-a: received message? (Y/N)\n");
+        printf("receiver-b: received message? (Y/N)\n");
         memset(input, 0, MSG_SIZE - 1);
         read(STD_IN, input, MSG_SIZE - 1);
 
@@ -92,38 +95,54 @@ int main(int argc, char* argv[]) {
             /* Respond to given message */
             sNum = (int) message[0];
             if (sNum == nNum) {
-                printf("receiver-a: expected message %d - %s", sNum, message + 1);
+                printf("receiver-b: expected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
                 nNum = (nNum + 1) % (wSize + 1);
                 pNum = sNum;
+
+                while (buffer[nNum] != NULL) {
+                    free(message);
+                    message = buffer[nNum];
+                    buffer[nNum] = NULL;
+                    
+                    printf("receiver-b: buffered message %d - %s", nNum, message + 1);
+
+                    nNum = (nNum + 1) % (wSize + 1);
+                    pNum = sNum;
+                }
             } else if (sNum == pNum) {
-                printf("receiver-a: retransmitted message %d - %s", sNum, message + 1);
+                printf("receiver-b: retransmitted message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
             } else {
-                printf("receiver-a: unexpected message %d - %s", sNum, message + 1);
-                memset(message + 1, 0, MSG_SIZE - 1);
+                printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
+                buffer[sNum] = message
 
+                message = calloc(MSG_SIZE, sizeof(char));
+                if (message == NULL) {
+                    printf("receiver-b: failed to allocate necessary memory\n");
+                    exit(1);
+                }
                 continue;
             }
 
             /* Attempt to acknowledge message */
             rNum = (rand() % PROB_MAX) + 1;
             if (rNum <= recvP) {
-                printf("receiver-a: acknowledgement for %d successful\n", sNum);
+                printf("receiver-b: acknowledgement for %d successful\n", sNum);
 
                 memset(message + 1, 0, MSG_SIZE - 1);
                 sprintf(message + 1, "%s", "ack");
                 if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
-                    printf("receiver-a: failed to send message\n");
+                    printf("receiver-b: failed to send message\n");
                 }
             } else {
-                printf("receiver-a: acknowledgement for %d unsuccessful\n", sNum);
+                printf("receiver-b: acknowledgement for %d unsuccessful\n", sNum);
             }
         }
         /* Message corrupted or lost */ 
         else {
-            printf("receiver-a: message not successfully received\n");
+            printf("receiver-b: message not successfully received\n");
         }
     }
 

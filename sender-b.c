@@ -169,16 +169,10 @@ int main(int argc, char* argv[]) {
                 continue;
             }
 
-            /* Retransmit buffered messages */
-            c = 0;
-            while (c < bCount) {
-                i = (bHead + c) % (wSize + 1);
-                message = buffer[i];
-
-                if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
-                    printf("sender-a: failed to send message\n");
-                }
-                c += 1;
+            /* Retransmit buffered message */
+            message = buffer[bHead];
+            if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
+                printf("sender-a: failed to send message\n");
             }
         }
     }
