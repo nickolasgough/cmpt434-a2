@@ -118,9 +118,16 @@ int main(int argc, char* argv[]) {
                 memset(message + 1, 0, MSG_SIZE - 1);
             } else {
                 printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
-                i = (bHead + bCount) % rSize;
-                buffer[i] = message;
-                bCount += 1;
+
+                if (bCount < rSize) {
+                    i = (bHead + bCount) % rSize;
+                    buffer[i] = message;
+                    bCount += 1;
+
+                    printf("receiver-b: message bufferd\n");
+                } else {
+                    printf("receiver-b: message discarded\n");
+                }
 
                 message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {
