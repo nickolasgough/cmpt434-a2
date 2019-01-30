@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
                 nNum = (nNum + 1) % (SEQ_MAX + 1);
                 pNum = sNum;
 
-                if (bCount <= 0) {
+                if (bCount > 0) {
                     sNum = (int) buffer[bHead][0];
                     while (sNum == nNum) {
                         free(message);
