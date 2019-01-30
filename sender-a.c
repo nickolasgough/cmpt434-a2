@@ -142,7 +142,6 @@ int main(int argc, char* argv[]) {
 
                 /* Remove acked messages */
                 sNum = (int) message[0];
-                c = 0;
                 while (bCount > 0) {
                     free(buffer[bHead]);
                     buffer[bHead] = NULL;
