@@ -32,8 +32,6 @@ int main(int argc, char* argv[]) {
     struct sockaddr_storage recvAddr;
     socklen_t recvLen;
 
-    int i;
-
     if (argc != 4) {
         printf("usage: ./receiver-b <port number> <window size> <probability>\n");
         exit(1);
@@ -105,7 +103,7 @@ int main(int argc, char* argv[]) {
                     free(message);
                     message = buffer[nNum];
                     buffer[nNum] = NULL;
-                    
+
                     printf("receiver-b: buffered message %d - %s", nNum, message + 1);
 
                     nNum = (nNum + 1) % (wSize + 1);
@@ -116,7 +114,7 @@ int main(int argc, char* argv[]) {
                 memset(message + 1, 0, MSG_SIZE - 1);
             } else {
                 printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
-                buffer[sNum] = message
+                buffer[sNum] = message;
 
                 message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {

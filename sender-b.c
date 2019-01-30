@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     fd_set fds;
     int sValue;
 
-    int c, i;
+    int c;
 
     if (argc != 5) {
         printf("usage: ./sender-a <host IP> <port number> <window size> <timeout>\n");
