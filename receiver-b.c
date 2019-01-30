@@ -16,37 +16,40 @@
 
 int main(int argc, char* argv[]) {
     char** buffer;
+    int bHead = 0, bCount = 0;
+
     char* input;
     char* message;
 
-    int nNum, pNum, sNum;
-    int rNum;
+    int sNum = 0, nNum = 0, pNum = 0;
+    int tempP;
 
     char* rPort;
 
-    int wSize;
-    int recvP;
+    int rSize, recvP;
 
     int recvFd;
     struct addrinfo* recvInfo;
     struct sockaddr_storage recvAddr;
     socklen_t recvLen;
 
+    int i;
+
     if (argc != 4) {
-        printf("usage: ./receiver-b <port number> <window size> <probability>\n");
+        printf("usage: ./receiver-b <port number> <buffer size> <probability>\n");
         exit(1);
     }
 
     /* Arguments and connection */
     rPort = argv[1];
-    wSize = atoi(argv[2]);
+    rSize = atoi(argv[2]);
     recvP = atoi(argv[3]);
     if (!check_port(rPort)) {
         printf("receiver-b: port number must be between 30000 and 40000\n");
         exit(1);
     }
-    if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
-        printf("receiver-b: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
+    if (rSize < WSIZE_MIN || rSize > WSIZE_MAX) {
+        printf("receiver-b: buffer size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
         exit(1); 
     }
     if (recvP < PROB_MIN || recvP > PROB_MAX) {
@@ -65,7 +68,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* Claim necessary memory */
-    buffer = calloc(wSize + 1, sizeof(char*));
+    buffer = calloc(rSize, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     message = calloc(MSG_SIZE, sizeof(char));
     if (buffer == NULL || input == NULL || message == NULL) {
@@ -74,8 +77,6 @@ int main(int argc, char* argv[]) {
     }
 
     /* Interact with the user */
-    nNum = 0;
-    sNum = 0;
     while (1) {
         /* Handle incoming message */
         recvLen = sizeof(recvAddr);
@@ -96,17 +97,20 @@ int main(int argc, char* argv[]) {
                 printf("receiver-b: expected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
-                nNum = (nNum + 1) % (wSize + 1);
+                nNum = (nNum + 1) % (SEQ_MAX + 1);
                 pNum = sNum;
 
-                while (buffer[nNum] != NULL) {
+                sNum = (int) buffer[bHead][0];
+                while (sNum == nNum) {
                     free(message);
-                    message = buffer[nNum];
+
+                    message = buffer[bHead];
                     buffer[nNum] = NULL;
+                    bHead = (bHead + 1) % rSize;
 
-                    printf("receiver-b: buffered message %d - %s", nNum, message + 1);
+                    printf("receiver-b: buffered message %d - %s", sNum, message + 1);
 
-                    nNum = (nNum + 1) % (wSize + 1);
+                    nNum = (nNum + 1) % (SEQ_MAX + 1);
                     pNum = sNum;
                 }
             } else if (sNum == pNum) {
@@ -114,7 +118,9 @@ int main(int argc, char* argv[]) {
                 memset(message + 1, 0, MSG_SIZE - 1);
             } else {
                 printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
-                buffer[sNum] = message;
+                i = (bHead + bCount) % rSize;
+                buffer[i] = message;
+                bCount += 1;
 
                 message = calloc(MSG_SIZE, sizeof(char));
                 if (message == NULL) {
@@ -125,8 +131,8 @@ int main(int argc, char* argv[]) {
             }
 
             /* Attempt to acknowledge message */
-            rNum = (rand() % PROB_MAX) + 1;
-            if (rNum <= recvP) {
+            tempP = (rand() % PROB_MAX) + 1;
+            if (tempP <= recvP) {
                 printf("receiver-b: acknowledgement for %d successful\n", sNum);
 
                 memset(message + 1, 0, MSG_SIZE - 1);

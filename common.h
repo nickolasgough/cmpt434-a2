@@ -6,8 +6,11 @@
 #define PORT_MIN 30000
 #define PORT_MAX 40000
 
+#define SEQ_MIN 0
+#define SEQ_MAX 255
+
 #define WSIZE_MIN 1
-#define WSIZE_MAX 126
+#define WSIZE_MAX 255
 
 #define PROB_MIN 1
 #define PROB_MAX 100

@@ -17,8 +17,7 @@
 
 int main(int argc, char* argv[]) {
     char** buffer;
-    int bHead;
-    int bCount;
+    int bHead = 0, bCount = 0;
 
     char* input;
     char* message;
@@ -26,9 +25,8 @@ int main(int argc, char* argv[]) {
     char* rName;
     char* rPort;
 
-    int sNum;
-    int wSize;
-    int tOut;
+    int sNum = 0, s1Num, s2Num;
+    int wSize, tOut;
     struct timeval tv;
 
     int recvFd;
@@ -38,6 +36,8 @@ int main(int argc, char* argv[]) {
 
     fd_set fds;
     int sValue;
+
+    int i;
 
     if (argc != 5) {
         printf("usage: ./sender-a <host IP> <port number> <window size> <timeout>\n");
@@ -80,8 +80,6 @@ int main(int argc, char* argv[]) {
     recvLen = recvInfo->ai_addrlen;
 
     /* Interact with the user */
-    bHead = 0;
-    bCount = 0;
     while (1) {
         FD_ZERO(&fds);
         FD_SET(STD_IN, &fds);
@@ -110,13 +108,15 @@ int main(int argc, char* argv[]) {
                 }
 
                 read(STD_IN, input, MSG_SIZE - 1);
-                sNum = (bHead + bCount) % (wSize + 1);
                 message[0] = (char) sNum;
                 sprintf(message + 1, "%s", input);
-                memset(input, 0, MSG_SIZE - 1);
 
-                buffer[sNum] = message;
+                i = (bHead + bCount) % (wSize + 1);
+                buffer[i] = message;
                 bCount += 1;
+
+                sNum = (sNum + 1) % (SEQ_MAX + 1);
+                memset(input, 0, MSG_SIZE - 1);
 
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                     printf("sender-a: failed to send message\n");
@@ -139,16 +139,18 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
-                sNum = (int) message[0];
+                s1Num = (int) message[0];
                 while (bCount > 0) {
+                    s2Num = (int) buffer[bHead][0];
                     free(buffer[bHead]);
                     buffer[bHead] = NULL;
 
-                    if (bHead == sNum) {
+                    if (s2Num == s1Num) {
                         bHead = (bHead + 1) % (wSize + 1);
                         bCount -= 1;
                         break;
                     }
+
                     bHead = (bHead + 1) % (wSize + 1);
                     bCount -= 1;
                 }
