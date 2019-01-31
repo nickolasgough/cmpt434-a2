@@ -147,14 +147,14 @@ int main(int argc, char* argv[]) {
             if (tempP <= recvP) {
                 printf("receiver-b: acknowledgement for %d successful\n", pNum);
 
-                message[0] = (char) pNum;
+                message[0] = (char) nNum;
                 memset(message + 1, 0, MSG_SIZE - 1);
                 sprintf(message + 1, "%s", "ack");
                 if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {
                     printf("receiver-b: failed to send message\n");
                 }
             } else {
-                printf("receiver-b: acknowledgement for %d unsuccessful\n", pNum);
+                printf("receiver-b: acknowledgement for %d unsuccessful\n", nNum);
             }
         }
         /* Message corrupted or lost */ 

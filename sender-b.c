@@ -26,7 +26,6 @@ int main(int argc, char* argv[]) {
     char* rPort;
 
     int sNum = 0, s1Num, s2Num;
-    int validA;
     int wSize, tOut;
     struct timeval tv;
 
@@ -140,23 +139,18 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
-                if (bCount > 0) {
-                    s1Num = (int) message[0];
+                s1Num = (int) message[0];
+                while (bCount > 0) {
                     s2Num = (int) buffer[bHead][0];
-                    validA = valid_seqn(s1Num, s2Num, wSize);
-
-                    while (validA && bCount > 0) {
-                        s2Num = (int) buffer[bHead][0];
-                        free(buffer[bHead]);
-                        buffer[bHead] = NULL;
-
-                        bHead = (bHead + 1) % wSize;
-                        bCount -= 1;
-
-                        if (s2Num == s1Num) {
-                            break;
-                        }
+                    if (s2Num == s1Num) {
+                        break;
                     }
+                    
+                    free(buffer[bHead]);
+                    buffer[bHead] = NULL;
+
+                    bHead = (bHead + 1) % wSize;
+                    bCount -= 1;
                 }
                 printf("sender-a: acknowledgement for %d successful\n", s1Num);
 
