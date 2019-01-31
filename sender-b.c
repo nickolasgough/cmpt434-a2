@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                 }
-                printf("sender-a: acknowledgement for %d successful\n", s2Num);
+                printf("sender-a: acknowledgement for %d successful\n", s1Num);
 
                 free(message);
             }
