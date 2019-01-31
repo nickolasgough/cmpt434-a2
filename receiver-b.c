@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     char* message;
 
     int sNum = 0, nNum = 0, pNum = 0;
-    int tempP;
+    int tNum, validS, tempP;
 
     char* rPort;
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* Arguments and connection */
+    /* Collect and vaidate arguments */
     rPort = argv[1];
     rSize = atoi(argv[2]);
     recvP = atoi(argv[3]);
@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
         exit(1); 
     }
 
+    /* Establish connection */
     recvFd = udp_socket(&recvInfo, NULL, rPort);
     if (recvFd <= 0) {
         printf("receiver-b: failed to create udp socket for given receiver\n");
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
                 printf("receiver-b: expected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
-                nNum = (nNum + 1) % (SEQ_MAX + 1);
+                nNum = (nNum + 1) % SEQ_MAX;
                 pNum = sNum;
 
                 if (bCount > 0) {
@@ -106,12 +107,12 @@ int main(int argc, char* argv[]) {
                         free(message);
 
                         message = buffer[bHead];
-                        buffer[nNum] = NULL;
+                        buffer[bHead] = NULL;
                         bHead = (bHead + 1) % rSize;
 
                         printf("receiver-b: buffered message %d - %s", sNum, message + 1);
 
-                        nNum = (nNum + 1) % (SEQ_MAX + 1);
+                        nNum = (nNum + 1) % SEQ_MAX;
                         pNum = sNum;
                     }
                 }
@@ -121,13 +122,21 @@ int main(int argc, char* argv[]) {
             } else {
                 printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
 
-                if (bCount < rSize) {
+                tNum = (nNum + rSize) % rSize;
+                if (nNum > tNum) {
+                    validS = sNum >= nNum || sNum < tNum;
+                } else {
+                    validS = sNum >= nNum && sNum < tNum;
+                }
+                if (validS && bCount < rSize) {
                     i = (bHead + bCount) % rSize;
                     buffer[i] = message;
                     bCount += 1;
 
                     printf("receiver-b: message bufferd\n");
                 } else {
+                    free(message);
+
                     printf("receiver-b: message discarded\n");
                 }
 
@@ -141,6 +150,7 @@ int main(int argc, char* argv[]) {
 
             /* Attempt to acknowledge message */
             tempP = (rand() % PROB_MAX) + 1;
+            sNum = (int) message[0];
             if (tempP <= recvP) {
                 printf("receiver-b: acknowledgement for %d successful\n", sNum);
 

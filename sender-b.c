@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* Arguments and connection */
+    /* Collect and validate arguments */
     rName = argv[1];
     rPort = argv[2];
     wSize = atoi(argv[3]);
@@ -62,22 +62,22 @@ int main(int argc, char* argv[]) {
         exit(1);   
     }
 
+    /* Establish connection */
     recvFd = udp_socket(&recvInfo, rName, rPort);
     if (recvFd <= 0) {
         printf("sender-a: failed to create udp socket for given receiver\n");
         exit(1);
     }
+    recvAddr = (struct sockaddr*) recvInfo->ai_addr;
+    recvLen = recvInfo->ai_addrlen;
 
     /* Claim necessary memory */
-    buffer = calloc(wSize + 1, sizeof(char*));
+    buffer = calloc(wSize, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     if (buffer == NULL || input == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
     }
-
-    recvAddr = (struct sockaddr*) recvInfo->ai_addr;
-    recvLen = recvInfo->ai_addrlen;
 
     /* Interact with the user */
     while (1) {
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
                 message[0] = (char) sNum;
                 sprintf(message + 1, "%s", input);
 
-                i = (bHead + bCount) % (wSize + 1);
+                i = (bHead + bCount) % wSize;
                 buffer[i] = message;
                 bCount += 1;
 
@@ -145,14 +145,12 @@ int main(int argc, char* argv[]) {
                     free(buffer[bHead]);
                     buffer[bHead] = NULL;
 
+                    bHead = (bHead + 1) % wSize;
+                    bCount -= 1;
+
                     if (s2Num == s1Num) {
-                        bHead = (bHead + 1) % (wSize + 1);
-                        bCount -= 1;
                         break;
                     }
-
-                    bHead = (bHead + 1) % (wSize + 1);
-                    bCount -= 1;
                 }
                 printf("sender-a: acknowledgement for %d successful\n", sNum);
 
