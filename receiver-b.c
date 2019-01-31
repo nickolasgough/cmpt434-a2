@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     char* message;
 
     int sNum = 0, nNum = 0, pNum = 0;
-    int tNum, validS, tempP;
+    int validS, tempP;
 
     char* rPort;
 
@@ -122,12 +122,7 @@ int main(int argc, char* argv[]) {
             } else {
                 printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
 
-                tNum = (nNum + rSize) % rSize;
-                if (nNum > tNum) {
-                    validS = sNum >= nNum || sNum < tNum;
-                } else {
-                    validS = sNum >= nNum && sNum < tNum;
-                }
+                validS = valid_seqn(sNum, nNum, rSize);
                 if (validS && bCount < rSize) {
                     i = (bHead + bCount) % rSize;
                     buffer[i] = message;
@@ -149,10 +144,10 @@ int main(int argc, char* argv[]) {
 
             /* Attempt to acknowledge message */
             tempP = (rand() % PROB_MAX) + 1;
-            message[0] = (char) pNum;
             if (tempP <= recvP) {
                 printf("receiver-b: acknowledgement for %d successful\n", pNum);
 
+                message[0] = (char) pNum;
                 memset(message + 1, 0, MSG_SIZE - 1);
                 sprintf(message + 1, "%s", "ack");
                 if (sendto(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, recvLen) == -1) {

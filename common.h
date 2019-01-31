@@ -24,8 +24,6 @@
 
 int check_port(char* port);
 
-int unblock_fd(int fd);
-
-int block_fd(int fd, int flags);
+int valid_seqn(int sNum, int fNum, int bSize);
 
 int udp_socket(struct addrinfo** outInfo, char* mName, char* port);
