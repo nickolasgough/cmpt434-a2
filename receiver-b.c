@@ -145,14 +145,13 @@ int main(int argc, char* argv[]) {
                     printf("receiver-b: failed to allocate necessary memory\n");
                     exit(1);
                 }
-                continue;
             }
 
             /* Attempt to acknowledge message */
             tempP = (rand() % PROB_MAX) + 1;
-            sNum = (int) message[0];
+            message[0] = (char) pNum;
             if (tempP <= recvP) {
-                printf("receiver-b: acknowledgement for %d successful\n", sNum);
+                printf("receiver-b: acknowledgement for %d successful\n", pNum);
 
                 memset(message + 1, 0, MSG_SIZE - 1);
                 sprintf(message + 1, "%s", "ack");
@@ -160,7 +159,7 @@ int main(int argc, char* argv[]) {
                     printf("receiver-b: failed to send message\n");
                 }
             } else {
-                printf("receiver-b: acknowledgement for %d unsuccessful\n", sNum);
+                printf("receiver-b: acknowledgement for %d unsuccessful\n", pNum);
             }
         }
         /* Message corrupted or lost */ 
