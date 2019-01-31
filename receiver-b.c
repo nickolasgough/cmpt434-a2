@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
             /* Attempt to acknowledge message */
             tempP = (rand() % PROB_MAX) + 1;
             if (tempP <= recvP) {
-                printf("receiver-b: acknowledgement for %d successful\n", pNum);
+                printf("receiver-b: acknowledgement for %d successful\n", nNum);
 
                 message[0] = (char) nNum;
                 memset(message + 1, 0, MSG_SIZE - 1);
