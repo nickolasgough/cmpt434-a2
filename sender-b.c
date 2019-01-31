@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
                     s2Num = (int) buffer[bHead][0];
                     validA = valid_seqn(s1Num, s2Num, wSize);
 
-                    while (bCount > 0) {
+                    while (validA && bCount > 0) {
                         s2Num = (int) buffer[bHead][0];
                         free(buffer[bHead]);
                         buffer[bHead] = NULL;
