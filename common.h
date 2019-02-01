@@ -18,7 +18,7 @@
 #define TIME_MIN 1
 #define TIME_MAX 60
 
-#define HEAD_SIZE 3
+#define BUF_SIZE 1000
 #define MSG_SIZE 1000
 
 
