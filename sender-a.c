@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     char* rName;
     char* rPort;
 
-    int cNum = 0, tNum;
+    int cNum = 0, s1Num, s2Num;
     int wSize, tOut;
     struct timeval tv;
 
@@ -140,11 +140,11 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
-                cNum = (int) message[0];
+                s1Num = (int) message[0];
                 free(message);
                 while (bCount > 0) {
                     message = buffer[bHead];
-                    tNum = (int) message[0];
+                    s2Num = (int) message[0];
 
                     free(message);
                     buffer[bHead] = NULL;
@@ -152,12 +152,12 @@ int main(int argc, char* argv[]) {
                     bHead = (bHead + 1) % wSize;
                     bCount -= 1;
 
-                    if (tNum == cNum) {
+                    if (s2Num == s1Num) {
                         break;
                     }
                 }
 
-                printf("sender-a: acknowledgement for %d successful\n", cNum);
+                printf("sender-a: acknowledgement for %d successful\n", s1Num);
             }
         }
         /* Handle a timeout */
