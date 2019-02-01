@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
                 /* Transmit buffered messages */
                 printf("sender-a: transmitting buffered messages\n");
 
-                for (c = wCount; c < wSize; c += 1) {
+                for (c = wCount; c < wSize && c < bCount; c += 1) {
                     i = (bHead + c) % BUF_SIZE;
                     message = buffer[i];
 
