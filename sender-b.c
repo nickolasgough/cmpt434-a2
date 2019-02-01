@@ -141,21 +141,23 @@ int main(int argc, char* argv[]) {
 
                 /* Remove acked messages */
                 s1Num = (int) message[0];
+                free(message);
                 while (bCount > 0) {
-                    s2Num = (int) buffer[bHead][0];
+                    message = buffer[bHead];
+                    s2Num = (int) message[0];
+                    
                     if (s2Num == s1Num) {
                         break;
                     }
 
-                    free(buffer[bHead]);
+                    free(message);
                     buffer[bHead] = NULL;
 
                     bHead = (bHead + 1) % wSize;
                     bCount -= 1;
                 }
-                printf("sender-b: acknowledgement for %d successful\n", s1Num);
 
-                free(message);
+                printf("sender-b: acknowledgement for %d successful\n", s1Num);
             }
         }
         /* Handle a timeout */
