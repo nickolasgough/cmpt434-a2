@@ -26,7 +26,7 @@ int check_port(char* port) {
 }
 
 int valid_seqn(int sNum, int fNum, int bSize) {
-    int lNum = (fNum + bSize) % bSize;
+    int lNum = (fNum + bSize) % SEQ_MAX;
     
     if (lNum < fNum) {
         return sNum >= fNum || sNum < lNum;

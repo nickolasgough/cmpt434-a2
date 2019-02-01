@@ -109,6 +109,7 @@ int main(int argc, char* argv[]) {
                         message = buffer[bHead];
                         buffer[bHead] = NULL;
                         bHead = (bHead + 1) % rSize;
+                        bCount -= 1;
 
                         printf("receiver-b: buffered message %d - %s", sNum, message + 1);
 
