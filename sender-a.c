@@ -143,6 +143,8 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
+                printf("sender-a: removing acked messages\n");
+
                 s1Num = (int) message[0];
                 free(message);
                 while (wCount > 0 && bCount > 0) {
@@ -162,6 +164,8 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Transmit buffered messages */
+                printf("sender-a: transmitting buffered messages\n");
+
                 for (c = wCount; c < wSize; c += 1) {
                     i = (bHead + c) % BUF_SIZE;
                     message = buffer[i];
