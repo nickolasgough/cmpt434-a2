@@ -181,6 +181,7 @@ int main(int argc, char* argv[]) {
         }
         /* Handle a timeout */
         else {
+            /* Print appropriate message */
             if (wCount > 0 && bCount > 0) {
                 s1Num = (int) buffer[bHead][0];
                 printf("sender-a: timeout, retransmitting begnning with %d\n", s1Num);
