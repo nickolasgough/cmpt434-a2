@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 
     char* rPort;
 
-    int wSize, recvP;
+    int recvP;
 
     int recvFd;
     struct addrinfo* recvInfo;
@@ -31,21 +31,16 @@ int main(int argc, char* argv[]) {
     socklen_t recvLen;
 
     if (argc != 4) {
-        printf("usage: ./receiver-a <port number> <window size> <probability>\n");
+        printf("usage: ./receiver-a <port number> <probability>\n");
         exit(1);
     }
 
     /* Collect and validate arguments */
     rPort = argv[1];
-    wSize = atoi(argv[2]);
-    recvP = atoi(argv[3]);
+    recvP = atoi(argv[2]);
     if (!check_port(rPort)) {
         printf("receiver-a: port number must be between 30000 and 40000\n");
         exit(1);
-    }
-    if (wSize < WSIZE_MIN || wSize > WSIZE_MAX) {
-        printf("receiver-a: window size must be between %d and %d\n", WSIZE_MAX, WSIZE_MIN);
-        exit(1); 
     }
     if (recvP < PROB_MIN || recvP > PROB_MAX) {
         printf("receiver-a: probability must be between %d and %d\n", PROB_MIN, PROB_MAX);
