@@ -98,25 +98,25 @@ int main(int argc, char* argv[]) {
                 printf("receiver-b: expected message %d - %s", sNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
+                pNum = nNum;
                 nNum = (nNum + 1) % SEQ_MAX;
-                pNum = sNum;
 
-                if (bCount > 0) {
+                while (bCount > 0) {
                     sNum = (int) buffer[bHead][0];
-                    while (sNum == nNum) {
-                        free(message);
-
-                        message = buffer[bHead];
-                        buffer[bHead] = NULL;
-                        bHead = (bHead + 1) % rSize;
-                        bCount -= 1;
-
-                        printf("receiver-b: buffered message %d - %s", sNum, message + 1);
-
-                        sNum = (int) message[0];
-                        nNum = (nNum + 1) % SEQ_MAX;
-                        pNum = sNum;
+                    if (sNum != nNum) {
+                        break;
                     }
+                    free(message);
+
+                    message = buffer[bHead];
+                    buffer[bHead] = NULL;
+                    bHead = (bHead + 1) % rSize;
+                    bCount -= 1;
+
+                    printf("receiver-b: buffered message %d - %s", sNum, message + 1);
+
+                    pNum = nNum;
+                    nNum = (nNum + 1) % SEQ_MAX;
                 }
             } else if (sNum == pNum) {
                 printf("receiver-b: retransmitted message %d - %s", sNum, message + 1);
