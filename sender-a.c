@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     char* rName;
     char* rPort;
 
-    int cNum, wSize, tOut;
+    int cNum = 0, wSize, tOut;
     struct timeval tv;
 
     int recvFd;
@@ -79,8 +79,6 @@ int main(int argc, char* argv[]) {
     }
 
     /* Interact with the user */
-    bHead = 0;
-    bCount = 0;
     while (1) {
         FD_ZERO(&fds);
         FD_SET(STD_IN, &fds);
