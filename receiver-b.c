@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
 
                         printf("receiver-b: buffered message %d - %s", sNum, message + 1);
 
+                        sNum = (int) message[0];
                         nNum = (nNum + 1) % SEQ_MAX;
                         pNum = sNum;
                     }
