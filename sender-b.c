@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
         if (sValue != 0) {
             /* Handle user input */
             if (FD_ISSET(STD_IN, &fds)) {
-                if (bCount >= wSize) {
+                if (bCount >= BUF_SIZE) {
                     printf("sender-b: failed to send due to full buffer\n");
 
                     read(STD_IN, input, MSG_SIZE - 1);
