@@ -18,13 +18,12 @@ int main(int argc, char* argv[]) {
     char* input;
     char* message;
 
-    int nNum, pNum, sNum;
+    int cNum = 0, nNum = 0, pNum = 0;
     int rNum;
 
     char* rPort;
 
-    int wSize;
-    int recvP;
+    int wSize, recvP;
 
     int recvFd;
     struct addrinfo* recvInfo;
@@ -36,7 +35,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* Arguments and connection */
+    /* Collect and validate arguments */
     rPort = argv[1];
     wSize = atoi(argv[2]);
     recvP = atoi(argv[3]);
@@ -53,6 +52,7 @@ int main(int argc, char* argv[]) {
         exit(1); 
     }
 
+    /* Establish connection */
     recvFd = udp_socket(&recvInfo, NULL, rPort);
     if (recvFd <= 0) {
         printf("receiver-a: failed to create udp socket for given receiver\n");
@@ -72,12 +72,10 @@ int main(int argc, char* argv[]) {
     }
 
     /* Interact with the user */
-    nNum = 0;
-    sNum = 0;
     while (1) {
         /* Handle incoming message */
-        memset(message, 0, MSG_SIZE);
         recvLen = sizeof(recvAddr);
+        memset(message, 0, MSG_SIZE);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
             printf("receiver-a: failed to receive message\n");
         }
@@ -90,19 +88,16 @@ int main(int argc, char* argv[]) {
         /* Message successfully received */
         if (input[0] == 'Y') {
             /* Respond to given message */
-            sNum = (int) message[0];
-            if (sNum == nNum) {
-                printf("receiver-a: expected message %d - %s", sNum, message + 1);
-                memset(message + 1, 0, MSG_SIZE - 1);
+            cNum = (int) message[0];
+            if (cNum == nNum) {
+                printf("receiver-a: expected message %d - %s", cNum, message + 1);
 
-                nNum = (nNum + 1) % (wSize + 1);
-                pNum = sNum;
-            } else if (sNum == pNum) {
-                printf("receiver-a: retransmitted message %d - %s", sNum, message + 1);
-                memset(message + 1, 0, MSG_SIZE - 1);
+                pNum = nNum;
+                nNum = (nNum + 1) % SEQ_MAX;
+            } else if (cNum == pNum) {
+                printf("receiver-a: retransmitted message %d - %s", cNum, message + 1);
             } else {
-                printf("receiver-a: unexpected message %d - %s", sNum, message + 1);
-                memset(message + 1, 0, MSG_SIZE - 1);
+                printf("receiver-a: unexpected message %d - %s", cNum, message + 1);
 
                 continue;
             }
@@ -110,7 +105,7 @@ int main(int argc, char* argv[]) {
             /* Attempt to acknowledge message */
             rNum = (rand() % PROB_MAX) + 1;
             if (rNum <= recvP) {
-                printf("receiver-a: acknowledgement for %d successful\n", sNum);
+                printf("receiver-a: acknowledgement for %d successful\n", cNum);
 
                 memset(message + 1, 0, MSG_SIZE - 1);
                 sprintf(message + 1, "%s", "ack");
@@ -118,7 +113,7 @@ int main(int argc, char* argv[]) {
                     printf("receiver-a: failed to send message\n");
                 }
             } else {
-                printf("receiver-a: acknowledgement for %d unsuccessful\n", sNum);
+                printf("receiver-a: acknowledgement for %d unsuccessful\n", cNum);
             }
         }
         /* Message corrupted or lost */ 

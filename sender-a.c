@@ -17,8 +17,7 @@
 
 int main(int argc, char* argv[]) {
     char** buffer;
-    int bHead;
-    int bCount;
+    int bHead = 0, bCount = 0;
 
     char* input;
     char* message;
@@ -26,9 +25,7 @@ int main(int argc, char* argv[]) {
     char* rName;
     char* rPort;
 
-    int sNum;
-    int wSize;
-    int tOut;
+    int cNum, wSize, tOut;
     struct timeval tv;
 
     int recvFd;
@@ -46,7 +43,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* Arguments and connection */
+    /* Collect and validate arguments */
     rName = argv[1];
     rPort = argv[2];
     wSize = atoi(argv[3]);
@@ -64,22 +61,22 @@ int main(int argc, char* argv[]) {
         exit(1);   
     }
 
+    /* Establish the connection */
     recvFd = udp_socket(&recvInfo, rName, rPort);
     if (recvFd <= 0) {
         printf("sender-a: failed to create udp socket for given receiver\n");
         exit(1);
     }
+    recvAddr = (struct sockaddr*) recvInfo->ai_addr;
+    recvLen = recvInfo->ai_addrlen;
 
     /* Claim necessary memory */
-    buffer = calloc(wSize + 1, sizeof(char*));
+    buffer = calloc(wSize, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     if (buffer == NULL || input == NULL) {
         printf("sender-a: failed to allocate necessary memory\n");
         exit(1);
     }
-
-    recvAddr = (struct sockaddr*) recvInfo->ai_addr;
-    recvLen = recvInfo->ai_addrlen;
 
     /* Interact with the user */
     bHead = 0;
@@ -100,6 +97,7 @@ int main(int argc, char* argv[]) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
                     printf("sender-a: failed to send due to full buffer\n");
+
                     read(STD_IN, input, MSG_SIZE - 1);
                     memset(input, 0, MSG_SIZE - 1);
                     continue;
@@ -112,13 +110,15 @@ int main(int argc, char* argv[]) {
                 }
 
                 read(STD_IN, input, MSG_SIZE - 1);
-                sNum = (bHead + bCount) % (wSize + 1);
-                message[0] = (char) sNum;
+                message[0] = (char) cNum;
                 sprintf(message + 1, "%s", input);
-                memset(input, 0, MSG_SIZE - 1);
 
-                buffer[sNum] = message;
+                i = (bHead + bCount) % wSize;
+                buffer[i] = message;
                 bCount += 1;
+
+                cNum = (cNum + 1) % SEQ_MAX;
+                memset(input, 0, MSG_SIZE - 1);
 
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                     printf("sender-a: failed to send message\n");
@@ -141,20 +141,19 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
-                sNum = (int) message[0];
+                cNum = (int) message[0];
                 while (bCount > 0) {
                     free(buffer[bHead]);
                     buffer[bHead] = NULL;
 
-                    if (bHead == sNum) {
-                        bHead = (bHead + 1) % (wSize + 1);
-                        bCount -= 1;
+                    bHead = (bHead + 1) % wSize;
+                    bCount -= 1;
+
+                    if (bHead == cNum) {
                         break;
                     }
-                    bHead = (bHead + 1) % (wSize + 1);
-                    bCount -= 1;
                 }
-                printf("sender-a: acknowledgement for %d successful\n", sNum);
+                printf("sender-a: acknowledgement for %d successful\n", cNum);
 
                 free(message);
             }
@@ -169,15 +168,13 @@ int main(int argc, char* argv[]) {
             }
 
             /* Retransmit buffered messages */
-            c = 0;
-            while (c < bCount) {
-                i = (bHead + c) % (wSize + 1);
+            for (c = 0; c < bCount; c += 1) {
+                i = (bHead + c) % wSize;
                 message = buffer[i];
 
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                     printf("sender-a: failed to send message\n");
                 }
-                c += 1;
             }
         }
     }

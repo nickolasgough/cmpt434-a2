@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     char* input;
     char* message;
 
-    int sNum = 0, nNum = 0, pNum = 0;
+    int cNum = 0, nNum = 0, pNum = 0;
     int validS, tempP;
 
     char* rPort;
@@ -81,6 +81,7 @@ int main(int argc, char* argv[]) {
     while (1) {
         /* Handle incoming message */
         recvLen = sizeof(recvAddr);
+        memset(message, 0, MSG_SIZE);
         if (recvfrom(recvFd, message, MSG_SIZE, 0, (struct sockaddr*) &recvAddr, &recvLen) == -1) {
             printf("receiver-b: failed to receive message\n");
         }
@@ -93,17 +94,17 @@ int main(int argc, char* argv[]) {
         /* Message successfully received */
         if (input[0] == 'Y') {
             /* Respond to given message */
-            sNum = (int) message[0];
-            if (sNum == nNum) {
-                printf("receiver-b: expected message %d - %s", sNum, message + 1);
+            cNum = (int) message[0];
+            if (cNum == nNum) {
+                printf("receiver-b: expected message %d - %s", cNum, message + 1);
                 memset(message + 1, 0, MSG_SIZE - 1);
 
                 pNum = nNum;
                 nNum = (nNum + 1) % SEQ_MAX;
 
                 while (bCount > 0) {
-                    sNum = (int) buffer[bHead][0];
-                    if (sNum != nNum) {
+                    cNum = (int) buffer[bHead][0];
+                    if (cNum != nNum) {
                         break;
                     }
                     free(message);
@@ -113,18 +114,17 @@ int main(int argc, char* argv[]) {
                     bHead = (bHead + 1) % rSize;
                     bCount -= 1;
 
-                    printf("receiver-b: buffered message %d - %s", sNum, message + 1);
+                    printf("receiver-b: buffered message %d - %s", cNum, message + 1);
 
                     pNum = nNum;
                     nNum = (nNum + 1) % SEQ_MAX;
                 }
-            } else if (sNum == pNum) {
-                printf("receiver-b: retransmitted message %d - %s", sNum, message + 1);
-                memset(message + 1, 0, MSG_SIZE - 1);
+            } else if (cNum == pNum) {
+                printf("receiver-b: retransmitted message %d - %s", cNum, message + 1);
             } else {
-                printf("receiver-b: unexpected message %d - %s", sNum, message + 1);
+                printf("receiver-b: unexpected message %d - %s", cNum, message + 1);
 
-                validS = valid_seqn(sNum, nNum, rSize);
+                validS = valid_seqn(cNum, nNum, rSize);
                 if (validS && bCount < rSize) {
                     i = (bHead + bCount) % rSize;
                     buffer[i] = message;

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     char* rName;
     char* rPort;
 
-    int sNum = 0, s1Num, s2Num;
+    int cNum = 0, s1Num, s2Num;
     int wSize, tOut;
     struct timeval tv;
 
@@ -96,6 +96,7 @@ int main(int argc, char* argv[]) {
             if (FD_ISSET(STD_IN, &fds)) {
                 if (bCount >= wSize) {
                     printf("sender-b: failed to send due to full buffer\n");
+
                     read(STD_IN, input, MSG_SIZE - 1);
                     memset(input, 0, MSG_SIZE - 1);
                     continue;
@@ -108,14 +109,14 @@ int main(int argc, char* argv[]) {
                 }
 
                 read(STD_IN, input, MSG_SIZE - 1);
-                message[0] = (char) sNum;
+                message[0] = (char) cNum;
                 sprintf(message + 1, "%s", input);
 
                 i = (bHead + bCount) % wSize;
                 buffer[i] = message;
                 bCount += 1;
 
-                sNum = (sNum + 1) % (SEQ_MAX + 1);
+                cNum = (cNum + 1) % SEQ_MAX;
                 memset(input, 0, MSG_SIZE - 1);
 
                 if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
