@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     char* rPort;
 
     int cNum = 0, s1Num, s2Num;
-    int wSize, tOut;
+    int wSize, wCount = 0, tOut;
     struct timeval tv;
 
     int recvFd;
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     fd_set fds;
     int sValue;
 
-    int i;
+    int i, c;
 
     if (argc != 5) {
         printf("usage: ./sender-b <host IP> <port number> <window size> <timeout>\n");
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     recvLen = recvInfo->ai_addrlen;
 
     /* Claim necessary memory */
-    buffer = calloc(wSize, sizeof(char*));
+    buffer = calloc(BUF_SIZE, sizeof(char*));
     input = calloc(MSG_SIZE - 1, sizeof(char));
     if (buffer == NULL || input == NULL) {
         printf("sender-b: failed to allocate necessary memory\n");
@@ -112,15 +112,18 @@ int main(int argc, char* argv[]) {
                 message[0] = (char) cNum;
                 sprintf(message + 1, "%s", input);
 
-                i = (bHead + bCount) % wSize;
+                i = (bHead + bCount) % BUF_SIZE;
                 buffer[i] = message;
                 bCount += 1;
 
                 cNum = (cNum + 1) % SEQ_MAX;
                 memset(input, 0, MSG_SIZE - 1);
 
-                if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
-                    printf("sender-b: failed to send message\n");
+                if (wCount < wSize) {
+                    if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
+                        printf("sender-b: failed to send message\n");
+                    }
+                    wCount += 1;
                 }
             }
             /* Handle receiver message */
@@ -140,9 +143,11 @@ int main(int argc, char* argv[]) {
                 }
 
                 /* Remove acked messages */
+                printf("sender-a: removing acked messages\n");
+
                 s1Num = (int) message[0];
                 free(message);
-                while (bCount > 0) {
+                while (wCount > 0 && bCount > 0) {
                     message = buffer[bHead];
                     s2Num = (int) message[0];
                     
@@ -153,8 +158,22 @@ int main(int argc, char* argv[]) {
                     free(message);
                     buffer[bHead] = NULL;
 
-                    bHead = (bHead + 1) % wSize;
+                    bHead = (bHead + 1) % BUF_SIZE;
                     bCount -= 1;
+                    wCount -= 1;
+                }
+
+                /* Transmit buffered messages */
+                printf("sender-a: transmitting buffered messages\n");
+
+                for (c = wCount; c < wSize && c < bCount; c += 1) {
+                    i = (bHead + c) % BUF_SIZE;
+                    message = buffer[i];
+
+                    if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
+                        printf("sender-a: failed to send message\n");
+                    }
+                    wCount += 1;
                 }
 
                 printf("sender-b: acknowledgement for %d successful\n", s1Num);
@@ -162,7 +181,8 @@ int main(int argc, char* argv[]) {
         }
         /* Handle a timeout */
         else {
-            if (bCount > 0) {
+            /* Print appropriate message */
+            if (wCount > 0 && bCount > 0) {
                 printf("sender-b: timeout, retransmitting begnning with %d\n", bHead);
             } else {
                 printf("sender-b: timeout with empty buffer, doing nothing\n");
