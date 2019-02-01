@@ -173,6 +173,7 @@ int main(int argc, char* argv[]) {
                     if (sendto(recvFd, message, MSG_SIZE, 0, recvAddr, recvLen) == -1) {
                         printf("sender-a: failed to send message\n");
                     }
+                    wCount += 1;
                 }
 
                 printf("sender-a: acknowledgement for %d successful\n", s1Num);
