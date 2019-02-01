@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     struct sockaddr_storage recvAddr;
     socklen_t recvLen;
 
-    if (argc != 4) {
+    if (argc != 3) {
         printf("usage: ./receiver-a <port number> <probability>\n");
         exit(1);
     }
