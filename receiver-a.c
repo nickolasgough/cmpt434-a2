@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     socklen_t recvLen;
 
     if (argc != 3) {
-        printf("usage: ./receiver-a <port number> <probability>\n");
+        printf("usage: ./receiver-a <receiver port> <probability>\n");
         exit(1);
     }
 

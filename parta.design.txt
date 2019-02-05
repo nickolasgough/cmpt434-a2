@@ -1,0 +1,287 @@
+Nickolas Gough, nvg081, 11181823
+
+
+The following design document describes the design of a couple simple sender
+and receiver applications that send and receive messages, respectively, through
+the use of sliding window protocols implemented through the use of UDP-based
+socket connections. All applications are text-based command-line
+applications.
+
+
+Overview:
+
+The sender is designed to collect user input, buffer the input in a formatted
+frame, and potentially send the formatted frame to the receiver. The receiver
+is designed to collect user input, receive formatted frames from the sender, and
+potentially print or discard the contents of the formatted frame. The sender
+sends a formatted frame to the receiver immediately if the formatted frame is
+buffered such that it is within the current sending window. If not, the
+formatted frame is buffered for later delivery. The receiver correctly receives
+a formatted frame from the sender only when the user input begins with a Y,
+otherwise the the formatted frame is considered lost or corrupt and is
+discarded. If the formatted frame is received correctly, the contents of the
+formatted frame are printed along with its sequence number and a message
+indicating whether the formatted frame is received in order, out of order, or is
+a retransmission of the previously successfully received formatted frame and
+whether the formatted frame is buffered for later processing. After the frame is
+processed, the receiver acknowledgement may send an accumulative acknowledgement
+to the sender indicating which formatted frames have been correctly received.
+When the sender receives an acknowledgement from the receiver, formatted frames
+that have been acknowledged are removed from the buffer, the sending window is
+slided, and waiting buffered formatted frames are sent.
+
+
+Protocol Design:
+
+The go-back-n sliding window protocol is designed to guarantee delivery of
+formatted frames including a frame sequence number and message contents and
+allows the sender to continue sending messages without having to wait for an
+acknowledgement from the receiver. To do this, the go-back-n sliding window
+protocol requires the range of valid sequence numbers, the size of the sending
+window, and a timeout value in seconds. The go-back-n sliding window protocol
+operates by buffering formatted frames and sending formatted frames stored
+within the sending window. When the receiver receives a formatted frame, it will
+accept it if it is determined by the sequence number to be the next expected
+formatted frame or discard it if it is not. In the case of a correctly received
+or retransmitted formatted frame, the receiver sends back an accumulative
+acknowledgement containing the sequence number of the last correctly received
+formatted frame. When the sender receives this acknowledgement, it will remove
+all buffered formatted frames that have been acknowledged as being successfully
+received and slide the sending window along as it sends any buffered formatted
+messages that were previously beyong the sending window. Finally, if no activity
+occurs before the timeout expires, the sender will retransmit all formatted
+frames within the sending window.
+
+The selective-repeat sliding window protocol is designed to guarantee delivery
+of formatted frames including a frame sequence number and message contents and
+allows the sender to continue sending messages without having to wait for an
+acknowledgement from the receiver. To do this, the selective-repeat sliding
+window protocol requires the range of valid sequence numbers, the size of the
+sending window, a timeout value in seconds, and a receiving buffer size. The
+selective-repeat sliding window protocol operates by buffering formatted frames
+and sending formatted frames stored within the sending window. When the receiver
+receives a formatted frame, it will accept it if it is determined by the
+sequence number to be the next expected formatted frame, buffer if it is not and
+the buffer is not yet full, or discard it if it is not and the buffer is full.
+In the case of a correctly received or retransmitted formatted frame, the
+receiver sends back an accumulative acknowledgement containing the sequence
+number of the next expected formatted frame. When the sender receives this
+acknowledgement, it will remove all buffered formatted frames that have been
+acknowledged as being successfully received and slide the sending window along
+as it sends any buffered formatted messages that were previously beyong the
+sending window. Finally, if no activity occurs before the timeout expires, the
+sender will retransmit the formatted message at the beginning of the sending
+window.
+
+
+Relevant Files:
+
+    Makefile - project makefile
+    sender-a.c - go-back-n sliding window sender
+    receiver-a.c - go-back-n sliding window receiver
+    sender-b.c - selective-repeat sliding window sender
+    receiver-b.c - selective-repeat sliding window receiver
+    x-common.c - common functions
+    x-common.h - common declarations, including macros
+
+
+Component Design:
+
+go-back-n sliding window sender ->
+    ./sender-a <receiver name> <receiver number> <window size> <timeout>
+
+Design:
+
+    The sender-a is the go-back-n sliding window sender. This sender is designed
+    to collect user input to be sent to the receiver to which it is connected
+    according to the go-back-n sliding window protocol. With its given
+    arguments, this sender establishes a UDP-based connection with the receiver
+    to which it will send formatted frames and then selectively processes user
+    input or incoming acknowledgements from the receiver in turn as they arrive.
+    If this sender is not given the correct arguments at startup, an error
+    message is printed to the console and program exits if it cannot recover.
+    Throughout the processing of the user input and acknowledgements from the
+    receiver, this sender adheres to the go-back-n sliding window protocol and
+    prints messages to the console to indicate which portion of the protocol is
+    being executed. Finally, this sender will print an error message to the
+    console and continue execution if sending or receiving through its UDP-based
+    socket connection should fail.
+
+go-back-n sliding window receiver ->
+    ./receiver-a <receiver port> <probability>
+
+Design:
+
+    The receiver-a is the go-back-n sliding window receiver. This receiver is
+    designed to collect user input to receive formatted frames from the
+    sender to which it is connected according to the go-back-n sliding window
+    protocol. With its given arguments, this receiver establishes a UDP-based
+    binding on the port from which it receives formatted frames and then
+    processes incoming formatted frames from the receiver in turn as they
+    arrive. If this receiver is not given the correct arguments at startup, an
+    error message is printed to the console and program exits if it cannot
+    recover. Throughout the processing of the user input and formatted frames
+    from the sender, this receiver adheres to the go-back-n sliding window
+    protocol and prints messages to the console to indicate which portion of the
+    protocol is being executed. Finally, this receiver will print an error
+    message to the console and continue execution if sending or receiving
+    through its UDP-based socket connection should fail.
+
+selective-repeat sliding window sender ->
+    ./sender-b <receiver name> <receiver port> <window size> <timeout>
+
+Design:
+
+    The sender-b is the selective-repeat sliding window sender. This sender is
+    designed to to collect user input to be sent to the receiver to which it is
+    connected according to the selective-repeat sliding window protocol. With
+    its given arguments, this sender establishes a UDP-based connection with the
+    receiver to which it will send formatted frames and then will selectively
+    process user input or incoming acknowledgements from the receiver in turn as
+    they arrive. If this sender is not given the correct arguments at startup,
+    an error message is printed to the console and program exits if it cannot
+    recover. Throughout the processing of the user input and acknowledgements
+    from the receiver, this sender adheres to the selective-repeat sliding
+    window protocol and prints messages to the console to indicate which portion
+    of the protocol is being executed. Finally, this sender will print an error
+    message to the console and continue execution if sending or receiving
+    through its UDP-based socket connection should fail.
+
+selective-repeat sliding window receiver ->
+    ./receiver-b <receiver port> <buffer size> <probability>
+
+Design:
+
+    The receiver-b is the selective-repeat sliding window receiver. This
+    receiver is designed to collect user input to receive formatted frames from
+    the sender to which it is connected according to the selective-repeat
+    sliding window protocol. With its given arguments, this receiver establishes
+    a UDP-based binding on the port from which it receives formatted frames and
+    then processes incoming formatted frames from the receiver in turn as they
+    arrive. If this receiver is not given the correct arguments at startup, an
+    error message is printed to the console and program exits if it cannot
+    recover. Throughout the processing of the user input and formatted frames
+    from the sender, this receiver adheres to the selective-repeat sliding
+    window protocol and prints messages to the console to indicate which portion
+    of the protocol is being executed. Finally, this receiver will print an
+    error message to the console and continue execution if sending or receiving
+    through its UDP-based socket connection should fail.
+
+
+Implementation Details:
+
+Selective Input:
+
+    The sender applications are designed to selectively process either user
+    input or an incoming message from the receiver. This is accomplished through
+    the standard select function using the file descriptors for standard input
+    and the established UDP-based socket connection and the timeout value
+    provided as an argument to the program. After the select function returns,
+    the active file descriptor is checked and is processed accordingly. Finally,
+    the sender applications are designed to do this continuously, resetting the
+    set of file descriptors and timeout value needed by the select function on
+    each iteration of the program.
+
+Formatted Frames:
+
+    The frames transmitted between the sender and receiver applications are
+    formatted to include a header containing the frame sequence number and the
+    frame contents. Frames are transmitted as character arrays, with the first
+    position being reserved for the frame sequence number and the rest of the
+    array containing the frame contents. Finally, it is important to note that
+    storing the frame sequence number in the first position of a character array
+    limits the range of valid sequence numbers and that each frame is limited
+    in its size.
+
+Buffering Frames:
+
+    The frames are buffered in the sender applications and the selective-repeat
+    sliding window protocol receiver application. The frames are buffered in an
+    array storing character arrays. The size of the buffer is restricted to a
+    maximum size, which is provided as an argument in the case of the
+    selective-repeat sliding window protocol receiver. The count of the number
+    of elements witin the buffer is stored as an independent variable and is
+    modified when the number of elements within the buffer changes. It is also
+    used to determine when the buffer is full and to perform various
+    computaions. Frames are appended to the buffer so long as there is room for
+    another frame, otherwise the frame may be discarded.
+
+Sending Window:
+
+    The sender applications maintain a sending window, the size of which is
+    provided as an argument to the application. The count of the elements within
+    the current sending window that have been sent is stored as an independent
+    variable that is modified whenever the number of elements within the sending
+    window that have been sent is decreased. This happens when an accumulative
+    acknowledgement is received, causing the sending window to slide forward.
+    When the sending window slides forward, this count is used to determine
+    at which position in the buffer to begin sending frames and the number of
+    buffered frames to send. Finally, this count of the number of buffered
+    frames that have been sent can never be any larger than the buffer size.
+
+Success Probability:
+
+    The receiver applications are provided with an integer of the likelihood
+    of successfully sending an acknowledgement back to the sender after
+    successfully receiving a frame. This argument is stored in an independent
+    variable and is used along with the standard rand function to determine if
+    the acknowledgement was sent successfully. If the random number generated
+    is less than or equal to the given probability, the acknowledgement is
+    considered to be successful and is sent. Otherwise, the acknowledgment is
+    considered to have been lost or corrupted and is not sent. Finally, this
+    operation is only performed when the frame is successfully received and
+    processed.
+
+Go-Back-N Sliding Window:
+
+Processing Acknowledgements:
+
+    The go-back-n sliding window sender processes acknowledgements from the
+    receiever containing the sequence number of the last successfully received
+    frame. Upon receiving an acknowledgement, the sender traverses the buffer,
+    removing all frames until the frame sequence number is found to be the frame
+    just removed, at which time the traversal stops. The sender then traverses
+    the buffer further, using the sending window and frame buffer variables
+    appropriately, sending any buffered frames that have not yet been sent to
+    the receiver. Of course, the sender modifies any and all sending window
+    and buffer variables as necessary.
+
+Retransmitting Frames:
+
+    When the go-back-n sliding window sender times out, it is responsible for
+    resending all frames currently within the sending window to the receiver.
+    This is done to ensure the receiver receives any lost or corrupted frames
+    and any other frames the receiver would have received and discarded as a
+    result of an earlier frame being lost or corrupted. This is simply
+    accomplished by using the sending window and buffer variables to traverse
+    the appropriate portion of the buffer, sending the encountered buffered
+    frames to the receiver. Finally, the sender applications are provided the
+    timeout value as an argument, which resets after a frame is sent, an
+    acknowledgement is received, or when user input is collected.
+
+Selective-Repeat Sliding Window:
+
+Processing Acknowledgements:
+
+    The selective-repeat sliding window sender processes acknowledgements from
+    the receiever containing the sequence number of the next expected in order
+    frame. Upon receiving an acknowledgement, the sender traverses the buffer,
+    checking each frame is not the next expected in order frame before removing
+    it. If the check fails, the frame is not removed and the traversal stops.
+    The sender then traverses the buffer further, using the sending window and
+    frame buffer variables appropriately, sending any buffered frames that have
+    not yet been sent to the receiver. Of course, the sender modifies any and
+    all sending window and buffer variables as necessary.
+
+Retransmitting Frames:
+
+    When the selective-repeat sliding window sender times out, it is responsible
+    for resending the frame suspected of not being correctly received by the
+    receiver to the receiver. This is done to ensure the receiver receives any
+    lost or corrupted frames and to allow the receiver to process any frames it
+    may have buffered as a result of an earlier frame being lost or corrupted.
+    This is simply accomplished by resending the first frame within the sending
+    window using the appropriate sending window and buffer variables. Finally,
+    the sender applications are provided the timeout value as an argument, which
+    resets after a frame is sent, an acknowledgement is received, or when user
+    input is collected.

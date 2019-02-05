@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     int c, i;
 
     if (argc != 5) {
-        printf("usage: ./sender-a <host IP> <port number> <window size> <timeout>\n");
+        printf("usage: ./sender-a <receiver name> <receiver port> <window size> <timeout>\n");
         exit(1);
     }
 
