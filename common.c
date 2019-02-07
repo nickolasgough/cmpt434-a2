@@ -25,16 +25,6 @@ int check_port(char* port) {
     return 1;
 }
 
-int valid_seqn(int sNum, int fNum, int bSize) {
-    int lNum = (fNum + bSize) % SEQ_MAX;
-    
-    if (lNum < fNum) {
-        return sNum >= fNum || sNum < lNum;
-    } else {
-        return sNum >= fNum && sNum < lNum;
-    }
-}
-
 int udp_socket(struct addrinfo** outInfo, char* mName, char* port) {
     struct addrinfo* pAi;
     struct addrinfo hints;

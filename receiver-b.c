@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     char* message;
 
     int cNum = 0, nNum = 0, pNum = 0;
-    int validS, tempP;
+    int tempP;
 
     char* rPort;
 
@@ -124,8 +124,7 @@ int main(int argc, char* argv[]) {
             } else {
                 printf("receiver-b: unexpected message %d - %s", cNum, message + 1);
 
-                validS = valid_seqn(cNum, nNum, rSize);
-                if (validS && bCount < rSize) {
+                if (bCount < rSize) {
                     i = (bHead + bCount) % rSize;
                     buffer[i] = message;
                     bCount += 1;
