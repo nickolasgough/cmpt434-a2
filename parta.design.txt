@@ -4,8 +4,7 @@ Nickolas Gough, nvg081, 11181823
 The following design document describes the design of a couple simple sender
 and receiver applications that send and receive messages, respectively, through
 the use of sliding window protocols implemented through the use of UDP-based
-socket connections. All applications are text-based command-line
-applications.
+socket connections. All applications are text-based command-line applications.
 
 
 Overview:
@@ -13,22 +12,22 @@ Overview:
 The sender is designed to collect user input, buffer the input in a formatted
 frame, and potentially send the formatted frame to the receiver. The receiver
 is designed to collect user input, receive formatted frames from the sender, and
-potentially print or discard the contents of the formatted frame. The sender
-sends a formatted frame to the receiver immediately if the formatted frame is
-buffered such that it is within the current sending window. If not, the
+potentially print and buffer or discard the contents of the formatted frame. The
+sender sends a formatted frame to the receiver immediately if the formatted frame
+is buffered such that it is within the current sending window. If not, the
 formatted frame is buffered for later delivery. The receiver correctly receives
 a formatted frame from the sender only when the user input begins with a Y,
-otherwise the the formatted frame is considered lost or corrupt and is
-discarded. If the formatted frame is received correctly, the contents of the
-formatted frame are printed along with its sequence number and a message
-indicating whether the formatted frame is received in order, out of order, or is
-a retransmission of the previously successfully received formatted frame and
-whether the formatted frame is buffered for later processing. After the frame is
-processed, the receiver acknowledgement may send an accumulative acknowledgement
-to the sender indicating which formatted frames have been correctly received.
-When the sender receives an acknowledgement from the receiver, formatted frames
-that have been acknowledged are removed from the buffer, the sending window is
-slided, and waiting buffered formatted frames are sent.
+otherwise the formatted frame is considered lost or corrupt and is discarded. If
+the formatted frame is received correctly, the contents of the formatted frame
+are printed along with its sequence number and a message indicating whether the
+formatted frame is received in order, out of order, or is a retransmission of
+the previously successfully received formatted frame and whether the formatted
+frame is buffered for later processing. After the frame is processed, the
+receiver may send an accumulative acknowledgement to the sender indicating which
+formatted frames have been correctly received. When the sender receives an
+acknowledgement from the receiver, formatted frames that have been acknowledged
+are removed from the buffer, the sending window is slided, and any waiting
+buffered formatted frames are sent.
 
 
 Protocol Design:
@@ -82,7 +81,7 @@ Relevant Files:
     sender-b.c - selective-repeat sliding window sender
     receiver-b.c - selective-repeat sliding window receiver
     x-common.c - common functions
-    x-common.h - common declarations, including macros
+    x-common.h - common defintions, including macros
 
 
 Component Design:
