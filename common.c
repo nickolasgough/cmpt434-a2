@@ -29,9 +29,9 @@ int valid_seqn(int sNum, int fNum, int bSize) {
     int lNum = (fNum + bSize) % SEQ_MAX;
     
     if (lNum < fNum) {
-        return sNum >= fNum || sNum < lNum;
+        return sNum >= fNum || sNum <= lNum;
     } else {
-        return sNum >= fNum && sNum < lNum;
+        return sNum >= fNum && sNum <= lNum;
     }
 }
 
