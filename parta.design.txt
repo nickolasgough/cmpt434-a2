@@ -192,6 +192,13 @@ Formatted Frames:
     limits the range of valid sequence numbers and that each frame is limited
     in its size.
 
+Note:
+
+    Reserving only the first position of the character array for the sequence
+    number limits the range of valid sequence numbers. The maximum and minimum
+    sequence numbers are defined as macros within the common.h file and are
+    computed to be the minimum and maximum integers supported by a single byte.
+
 Buffering Frames:
 
     The frames are buffered in the sender applications and the selective-repeat
@@ -205,6 +212,17 @@ Buffering Frames:
     computaions. Frames are appended to the buffer so long as there is room for
     another frame, otherwise the frame may be discarded.
 
+Note:
+
+    The buffer is itself an array of character arrays and is managed through
+    the use of variables that store its head position (bHead) and its count
+    (bCount). The head and count variables are used to treat the buffer like
+    it is a queue, being modified accordingly as frames are added and removed
+    from the buffer. The head and count variables are used in various operations
+    involving the buffer, including the addition and removal of frames. Finally,
+    the size of the buffer is statically defined as a macro in the common.h file
+    and is used to allocate the buffer and maintain a valid buffer state.
+
 Sending Window:
 
     The sender applications maintain a sending window, the size of which is
@@ -217,6 +235,20 @@ Sending Window:
     at which position in the buffer to begin sending frames and the number of
     buffered frames to send. Finally, this count of the number of buffered
     frames that have been sent can never be any larger than the buffer size.
+
+Note:
+
+    The sending window is tracked through the use of two variables, the window
+    count (wCount) and the window size (wSize). The window count is dynamic and
+    is modified appropriately to track the number of buffered frames within the
+    sending window. The window size is stored statically within a local variable
+    that is assigned the value of the corresponding command line argument. The
+    window count and window size are used to limit the number of buffered frames
+    in transit. The window count is modified accordingly when an accumulative
+    acknowledgement is received and buffered frames removed, and is then used
+    to determine which, if any, buffered frames previously outside the sending
+    window. Finally, the window count and window size variables are involved in
+    many operations to maintain a valid sending window.
 
 Success Probability:
 
@@ -271,6 +303,17 @@ Processing Acknowledgements:
     frame buffer variables appropriately, sending any buffered frames that have
     not yet been sent to the receiver. Of course, the sender modifies any and
     all sending window and buffer variables as necessary.
+
+Note:
+
+    The selective-repeat sliding window receiver must be able to determine if a
+    received frame is within the range of expected frames it may receive. That
+    is, it must be able to distinguish a new frame from a retransmitted frame.
+    This is accomplished through a function defined in common.c (valid_seqn)
+    that determines if the given sequence number is within the range of valid
+    sequence numbers for the maximum sending window that would be allowed given
+    the current buffer size, which is stored in a variable (bSize) assigned the
+    corresponding command line argument.
 
 Retransmitting Frames:
 
